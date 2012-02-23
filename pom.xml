@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+       <groupId>fr.soleil</groupId>
+       <artifactId>super-pom-C-CPP-device</artifactId>
+       <version>RELEASE</version>
+   </parent>
+   <groupId>fr.soleil.device</groupId>
+   <artifactId>Aerotech-${aol}-${mode}</artifactId>
+  <version>0.0.1</version>
+   <packaging>nar</packaging>
+   <name>Aerotech</name>
+   <description>Aerotech device</description>
+   <build>
+       <plugins>
+           <plugin>
+               <groupId>org.freehep</groupId>
+               <artifactId>freehep-nar-plugin</artifactId>
+               <configuration>
+               </configuration>
+           </plugin>
+       </plugins>
+   </build>
+   <dependencies>
+     <dependency>
+       <groupId>fr.soleil.lib</groupId>
+       <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
+     </dependency>
+     <dependency>
+       <groupId>fr.soleil.lib</groupId>
+       <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
+       <version>1.7.6</version>
+     </dependency>
+   </dependencies>
+   <scm>
+       <connection>${scm.connection.cvs.tango-ds}:Motion/Aerotech</connection>
+       <developerConnection>${scm.developerConnection.cvs.tango-ds}:Motion/Aerotech</developerConnection>
+       <url>${scm.url.cvs.tango-ds}/Motion/Aerotech</url>
+   </scm>
+   <developers>
+       <developer>
+           <id>coquet</id>
+           <name>coquet</name>
+           <url>http://controle/</url>
+           <organization>Synchrotron Soleil</organization>
+           <organizationUrl>http://www.synchrotron-soleil.fr</organizationUrl>
+           <roles>
+               <role>manager</role>
+           </roles>
+           <timezone>1</timezone>
+       </developer>
+   </developers>
+</project>

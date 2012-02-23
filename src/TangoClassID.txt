@@ -1,0 +1,11 @@
+/**
+ * Device Class Identification:
+ * 
+ * Class Name   :	EnsembleBox
+ * Contact      :	jean.coquet@synchrotron-soleil.fr
+ * Class Family :	Motion
+ * Platform     :	All Platforms
+ * Bus          :	Ethernet
+ * Manufacturer :	Delta Tau
+ * Reference    :	PMAC
+ */
