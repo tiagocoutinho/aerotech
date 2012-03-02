@@ -8,6 +8,8 @@
 #include <yat/Exception.h>
 #include <yat/time/Timer.h>
 #include <stdio.h>
+#include <iostream>
+#include <yat/threading/Mutex.h>
 
 
 
@@ -88,6 +90,8 @@ private:
     *  
     **/
 
+    //- Mutex for communications
+    yat::Mutex m_lock;
     yat::ClientSocket * sock;                   // "sock" is the instance of Yat Socket used
     bool create_socket(char *address,int port); // To connect Client to server
     bool close_socket();                        // to disconnet client from server
@@ -109,6 +113,8 @@ private:
 
     bool get_param(char *axis_name,char *param,char *string_received);
     bool set_param(char *axis_name,char *param,char *string_to_send);
+
+    bool is_ready_to_accept_cmd (char *axis_name);
     
  public:
 
@@ -131,11 +137,16 @@ private:
   static void  initialize (char *address,int port)
     throw (yat::Exception)
   {
+    std::cout << "constructeur cEnsemble <-" << std::endl;
     if (ClassEnsemble::singleton)
+    {
+      std::cout << " cEnsemble deja fait" << std::endl;
       return;
+    }
     try
     {
       singleton = new ClassEnsemble (address, port);
+      std::cout << " cEnsemble construit" << std::endl;
     }
     catch (...)
     {
@@ -399,6 +410,12 @@ private:
 *   or call "close_socket" then "create_socket"
 **/
     bool reset(void);
+
+/**
+*  The "lowlevelcmd" function sends an Aerotech cmd to the controller.
+*  returns the response
+**/
+    bool lowlevelcmd(char * argin, char * argout);
 
 /**
 *  The function "commit_parameters" commits the value of parameters.

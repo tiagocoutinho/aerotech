@@ -6,10 +6,10 @@
 //
 // project :	Ensemble
 //
-// $Author: olivierroux $
+// $Author: jean_coquet $
 //
-// $Revision: 1.1 $
-// $Date: 2012-02-23 17:46:18 $
+// $Revision: 1.2 $
+// $Date: 2012-03-02 15:45:15 $
 //
 // SVN only:
 // $HeadURL: $
@@ -17,6 +17,9 @@
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBox.h,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2012/02/23 17:46:18  olivierroux
+// - initial import #21894
+//
 //
 // copyleft :    Synchrotron SOLEIL 
 //               L'Orme des merisiers - Saint Aubin
@@ -37,8 +40,8 @@
 //using namespace Tango;
 
 /**
- * @author	$Author: olivierroux $
- * @version	$Revision: 1.1 $
+ * @author	$Author: jean_coquet $
+ * @version	$Revision: 1.2 $
  */
 
  //	Add your own constant definitions here.
@@ -82,7 +85,7 @@ public :
  */
 //@{
 /**
- *	IP Address 
+ *	IP Address
  */
 	string	iPAddress;
 /**
@@ -187,6 +190,10 @@ public :
  */
 	virtual bool is_Reset_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for ExecLowLevelCmd command.
+ */
+	virtual bool is_ExecLowLevelCmd_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -203,6 +210,14 @@ public :
  *	@exception DevFailed
  */
 	void	reset();
+/**
+ * executes a Aerotech cmd and returns the response
+ *	** WARNING : EXPERT USERS ONLY! YOU CAN CRASH THE CONTROLLER! **
+ *	@param	argin	
+ *	@return	
+ *	@exception DevFailed
+ */
+	Tango::DevString	exec_low_level_cmd(Tango::DevString);
 
 /**
  *	Read the device properties from database

@@ -1,4 +1,4 @@
-static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.1 2012-02-23 17:46:18 olivierroux Exp $";
+static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.2 2012-03-02 15:45:12 jean_coquet Exp $";
 //+=============================================================================
 //
 // file :         EnsembleBox.cpp
@@ -11,12 +11,12 @@ static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.1 2012-02-23 17:46:18 olivi
 //
 // project :      TANGO Device Server
 //
-// $Author: olivierroux $
+// $Author: jean_coquet $
 //
-// $Revision: 1.1 $
+// $Revision: 1.2 $
 //
-// $Revision: 1.1 $
-// $Date: 2012-02-23 17:46:18 $
+// $Revision: 1.2 $
+// $Date: 2012-03-02 15:45:12 $
 //
 // SVN only:
 // $HeadURL: $
@@ -24,6 +24,9 @@ static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.1 2012-02-23 17:46:18 olivi
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBox.cpp,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2012/02/23 17:46:18  olivierroux
+// - initial import #21894
+//
 //
 // copyleft :    Synchrotron SOLEIL 
 //               L'Orme des merisiers - Saint Aubin
@@ -45,11 +48,12 @@ static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.1 2012-02-23 17:46:18 olivi
 //	The following table gives the correspondence
 //	between commands and method name.
 //
-//  Command name|  Method name
+//  Command name     |  Method name
 //	----------------------------------------
-//  State   |  dev_state()
-//  Status  |  dev_status()
-//  Reset   |  reset()
+//  State            |  dev_state()
+//  Status           |  dev_status()
+//  Reset            |  reset()
+//  ExecLowLevelCmd  |  exec_low_level_cmd()
 //
 //===================================================================
 
@@ -58,6 +62,7 @@ static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.1 2012-02-23 17:46:18 olivi
 #include <EnsembleBox.h>
 #include <EnsembleBoxClass.h>
 #include <helpers/PogoHelper.h>
+#include <yat4tango/ExceptionHelper.h>
 #include "cEnsemble.h"
 
 
@@ -370,5 +375,38 @@ Tango::ConstDevString EnsembleBox::dev_status()
   return m_status_str.c_str ();
 }
 
+//+------------------------------------------------------------------
+/**
+ *	method:	EnsembleBox::exec_low_level_cmd
+ *
+ *	description:	method to execute "ExecLowLevelCmd"
+ *	executes a Aerotech cmd and returns the response
+ *	** WARNING : EXPERT USERS ONLY! YOU CAN CRASH THE CONTROLLER! **
+ *
+ * @param	argin	
+ * @return	
+ *
+ */
+//+------------------------------------------------------------------
+Tango::DevString EnsembleBox::exec_low_level_cmd(Tango::DevString argin)
+{
+	//	POGO has generated a method core with argout allocation.
+	//	If you would like to use a static reference without copying,
+	//	See "TANGO Device Server Programmer's Manual"
+	//		(chapter : Writing a TANGO DS / Exchanging data)
+	//------------------------------------------------------------
+	Tango::DevString	argout  = new char[256];
+  ::memset (argout, 0, 256);
+
+
+	DEBUG_STREAM << "EnsembleBox::exec_low_level_cmd(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (!ENSEMBLE_PROXY->lowlevelcmd (argin, argout))
+    THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "EnsembleBox::exec_low_level_cmd");
+	return argout;
+}
 
 }	//	namespace

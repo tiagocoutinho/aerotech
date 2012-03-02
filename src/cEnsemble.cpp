@@ -16,7 +16,8 @@ ClassEnsemble * ClassEnsemble::singleton = 0;
 ************************************************************/
 
 bool ClassEnsemble::send_string(char *string_to_send)  //send string to controller
-{      //send string to controller
+{  //send string to controller
+
   char string_received[SIZE_BUFFER];
   send_and_receive(string_to_send,string_received);
   return (string_received[0]=='%');
@@ -36,6 +37,8 @@ bool ClassEnsemble::send_receive_and_test(char *to_send, char *received)
 
 bool ClassEnsemble::axis_enable(char *axis_name)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char s[SIZE_BUFFER];
   sprintf(s,"ENABLE %s \n",axis_name);
   return send_string(s);
@@ -43,6 +46,8 @@ bool ClassEnsemble::axis_enable(char *axis_name)
 
 bool ClassEnsemble::axis_disable(char *axis_name)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char s[SIZE_BUFFER];
   sprintf(s,"DISABLE %s \n",axis_name);
   return send_string(s);
@@ -50,6 +55,15 @@ bool ClassEnsemble::axis_disable(char *axis_name)
 
 bool ClassEnsemble::axis_home(char *axis_name)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
+  int status = 0;
+  if (!get_axis_status (axis_name, status))
+    return false;
+  if (! is_enabled (status))
+    return false;
+  if ( is_homing (status) || is_moving (status))
+    return false;
   char s[SIZE_BUFFER];
   sprintf(s,"HOMEASYNC %s \n",axis_name);
   return send_string(s);
@@ -64,6 +78,8 @@ bool ClassEnsemble::commit_parameters()
 
 bool ClassEnsemble::axis_abort(char *axis_name)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char s[SIZE_BUFFER];
   sprintf(s,"ABORT %s \n",axis_name);
   return send_string(s);
@@ -78,6 +94,8 @@ bool ClassEnsemble::axis_fault_ack(char *axis_name)
 
 bool ClassEnsemble::axis_brake_on(char *axis_name)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char s[SIZE_BUFFER];
   sprintf(s,"BRAKE %s ON\n",axis_name);
   return send_string(s);
@@ -85,6 +103,8 @@ bool ClassEnsemble::axis_brake_on(char *axis_name)
 
 bool ClassEnsemble::axis_brake_off(char *axis_name)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char s[SIZE_BUFFER];
   sprintf(s,"BRAKE %s OFF\n",axis_name);
   return send_string(s);
@@ -92,6 +112,8 @@ bool ClassEnsemble::axis_brake_off(char *axis_name)
 
 bool ClassEnsemble::axis_move_abs(char *axis_name,double target)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char sformat[SIZE_BUFFER];
   char s[SIZE_BUFFER];
   this->moving_timeout.restart ();
@@ -102,6 +124,8 @@ bool ClassEnsemble::axis_move_abs(char *axis_name,double target)
 
 bool ClassEnsemble::axis_move_rel(char *axis_name,double target)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char sformat[SIZE_BUFFER];
   char s[SIZE_BUFFER];
   this->moving_timeout.restart ();
@@ -171,30 +195,40 @@ bool ClassEnsemble::get_axis_fault_status(char *axis_name, int &fault_status)
   return ok;
 }
 
+bool ClassEnsemble::is_ready_to_accept_cmd (char *axis_name)
+{
+  int f_status = 0;
+  if (!get_axis_fault_status (axis_name, f_status))
+    return false;
+
+  return f_status == 0;
+}
+
+
 void ClassEnsemble::error_to_string( int fault_status,char *explanation)
 {               // This procedure creates as many strings as many faults are found
   // the strings are separated by "cariage return"
   // in the buffer
   explanation[0]=0;
-  if ((fault_status & 0x000001)!=0) {strcat(explanation,"Position error\n");}
-  if ((fault_status & 0x000002)!=0) {strcat(explanation,"Over current\n");}
-  if ((fault_status & 0x000004)!=0) {strcat(explanation,"Positive end of run\n");}
-  if ((fault_status & 0x000008)!=0) {strcat(explanation,"Negative end of run\n");}
-  if ((fault_status & 0x000010)!=0) {strcat(explanation,"Positive soft limit\n");}
-  if ((fault_status & 0x000020)!=0) {strcat(explanation,"Negative soft limit\n");}
-  if ((fault_status & 0x000040)!=0) {strcat(explanation,"Amplifier fault\n");}
-  if ((fault_status & 0x000080)!=0) {strcat(explanation,"Feedback fault\n");}
-  if ((fault_status & 0x000100)!=0) {strcat(explanation,"Velocity fault\n");}
-  if ((fault_status & 0x000200)!=0) {strcat(explanation,"Hall senser fault\n");}
-  if ((fault_status & 0x000400)!=0) {strcat(explanation,"Velocity command fault\n");}
-  if ((fault_status & 0x000800)!=0) {strcat(explanation,"Emergency stop\n");}
-  if ((fault_status & 0x001000)!=0) {strcat(explanation,"Velocity error fault\n");}
-  if ((fault_status & 0x008000)!=0) {strcat(explanation,"External fault\n");}
-  if ((fault_status & 0x020000)!=0) {strcat(explanation,"Motor temperature\n");}
-  if ((fault_status & 0x040000)!=0) {strcat(explanation,"Amplifier temperature\n");}
-  if ((fault_status & 0x080000)!=0) {strcat(explanation,"Encoder fault\n");}
-  if ((fault_status & 0x100000)!=0) {strcat(explanation,"Communication lost\n");}
-  if ((fault_status & 0x400000)!=0) {strcat(explanation,"Following error\n");}
+  if ((fault_status & 0x000001)!=0) {strcat(explanation,"Position error [use FaultAck]\n");}
+  if ((fault_status & 0x000002)!=0) {strcat(explanation,"Over current [use FaultAck]\n");}
+  if ((fault_status & 0x000004)!=0) {strcat(explanation,"Positive end of run [use FaultAck]\n");}
+  if ((fault_status & 0x000008)!=0) {strcat(explanation,"Negative end of run [use FaultAck]\n");}
+  if ((fault_status & 0x000010)!=0) {strcat(explanation,"Positive soft limit [use FaultAck]\n");}
+  if ((fault_status & 0x000020)!=0) {strcat(explanation,"Negative soft limit [use FaultAck]\n");}
+  if ((fault_status & 0x000040)!=0) {strcat(explanation,"Amplifier fault [use FaultAck]\n");}
+  if ((fault_status & 0x000080)!=0) {strcat(explanation,"Feedback fault [use FaultAck]\n");}
+  if ((fault_status & 0x000100)!=0) {strcat(explanation,"Velocity fault [use FaultAck]\n");}
+  if ((fault_status & 0x000200)!=0) {strcat(explanation,"Hall senser fault [use FaultAck]\n");}
+  if ((fault_status & 0x000400)!=0) {strcat(explanation,"Velocity command fault [use FaultAck]\n");}
+  if ((fault_status & 0x000800)!=0) {strcat(explanation,"Emergency stop [fix and use FaultAck]\n");}
+  if ((fault_status & 0x001000)!=0) {strcat(explanation,"Velocity error fault [use FaultAck]\n");}
+  if ((fault_status & 0x008000)!=0) {strcat(explanation,"External fault [check wired securities?]\n");}
+  if ((fault_status & 0x020000)!=0) {strcat(explanation,"Motor temperature [use FaultAck]\n");}
+  if ((fault_status & 0x040000)!=0) {strcat(explanation,"Amplifier temperature [use FaultAck]\n");}
+  if ((fault_status & 0x080000)!=0) {strcat(explanation,"Encoder fault [use FaultAck, call maintenance]\n");}
+  if ((fault_status & 0x100000)!=0) {strcat(explanation,"Communication lost [resart device, reset driver..]\n");}
+  if ((fault_status & 0x400000)!=0) {strcat(explanation,"Following error [use FaultAck]\n");}
 }
 
 bool ClassEnsemble::get_param(char *axis_name,char *param,char *string_received)
@@ -208,6 +242,8 @@ bool ClassEnsemble::get_param(char *axis_name,char *param,char *string_received)
 
 bool ClassEnsemble::set_param(char *axis_name,char *param,char *string_to_send)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char s[SIZE_BUFFER];
   bool ok;
   sprintf(s,"SETPARM(%s,%s,%s)\n",axis_name,param,string_to_send);
@@ -254,6 +290,8 @@ bool ClassEnsemble::set_axis_software_limit_high(char *axis_name,double limit)
 
 bool ClassEnsemble::set_axis_velocity(char *axis_name,double velocity)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char sformat[SIZE_BUFFER];
   char s[SIZE_BUFFER];
   sprintf(sformat,"VCMD %%s  %%.%df\n",NB_DIGITS);
@@ -314,6 +352,8 @@ bool ClassEnsemble::get_axis_ramp_rate(char *axis_name,double &ramp_rate)
 
 bool ClassEnsemble::set_axis_ramp_rate(char *axis_name,double ramp_rate)
 {
+  if (! is_ready_to_accept_cmd (axis_name))
+    return false;
   char s[SIZE_BUFFER];
   char sformat[SIZE_BUFFER];
   bool ok;
@@ -358,6 +398,15 @@ bool ClassEnsemble::set_axis_home_offset(char *axis_name,double offset)
   char s[SIZE_BUFFER];
   sprintf(s,"%lf",offset);
   return (set_param(axis_name,"homeoffset",s));
+}
+
+bool ClassEnsemble::lowlevelcmd(char * argin, char * argout)
+{
+  char tmp [256];
+  ::memset (tmp, 0, 256);
+  strncpy (tmp, argin, 254);
+  strcat (tmp, "\n");
+  return send_and_receive (tmp, argout);
 }
 
 
@@ -463,7 +512,12 @@ bool ClassEnsemble::create_socket(char *address,int port)
   try
   {
     sock = new yat::ClientSocket ();
-    yat::Address adr ("192.168.1.16", 8000);
+    sock->set_option(yat::Socket::SOCK_OPT_KEEP_ALIVE, 1);
+    sock->set_option(yat::Socket::SOCK_OPT_NO_DELAY, 1);
+    sock->set_option(yat::Socket::SOCK_OPT_OTIMEOUT, 1000);
+    sock->set_option(yat::Socket::SOCK_OPT_ITIMEOUT, 2500);
+
+    yat::Address adr (address, 8000);
     sock->connect (adr);
     return true;
   }
@@ -507,8 +561,11 @@ bool ClassEnsemble::send_and_receive(char *command, char *received)
 {
   try
   {
-    sock->send (command);
-    sock->receive (received, size_t (SIZE_BUFFER));
+    { //- CRITICAL SECTION
+      yat::AutoMutex <yat::Mutex> guard (this->m_lock);
+      sock->send (command);
+      sock->receive (received, size_t (SIZE_BUFFER));
+    } //- END CRITICAL SECTION
     this->com_ok_counter ++;
     return true;
   }
@@ -549,16 +606,23 @@ bool ClassEnsemble::send_and_receive(std::string cmd, std::string & resp)
 // constructor
 ClassEnsemble::ClassEnsemble(char *address,int port) : sock (0)
 {
+
+  std::cout << "ClassEnsemble::ClassEnsemble entering <-" << std::endl;
+
   this->com_ok_counter = 0;
   this->com_error_counter = 0;
   //- configure the moving timer
+  is_connected = false;
   this->moving_timeout.set_unit (yat::Timeout::TMO_UNIT_MSEC);
   this->moving_timeout.set_value (25.0);
-  this->moving_timeout.disable ();
+  this->moving_timeout.restart ();
+
 
   try
   {
+    std::cout << "ClassEnsemble::ClassEnsemble try to connect to " << address << " port " << port << std::endl;
     is_connected = create_socket (address, port);
+    std::cout << "ClassEnsemble::ClassEnsemble connected = " << is_connected << std::endl;
   }
   catch (yat::Exception &ye)
   {

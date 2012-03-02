@@ -1,4 +1,4 @@
-static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.1 2012-02-23 17:46:18 olivierroux Exp $";
+static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.2 2012-03-02 15:45:12 jean_coquet Exp $";
 //+=============================================================================
 //
 // file :         EnsembleAxis.cpp
@@ -11,12 +11,12 @@ static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.1 2012-02-23 17:46:18 oliv
 //
 // project :      TANGO Device Server
 //
-// $Author: olivierroux $
+// $Author: jean_coquet $
 //
-// $Revision: 1.1 $
+// $Revision: 1.2 $
 //
-// $Revision: 1.1 $
-// $Date: 2012-02-23 17:46:18 $
+// $Revision: 1.2 $
+// $Date: 2012-03-02 15:45:12 $
 //
 // SVN only:
 // $HeadURL: $
@@ -24,6 +24,9 @@ static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.1 2012-02-23 17:46:18 oliv
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleAxis.cpp,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2012/02/23 17:46:18  olivierroux
+// - initial import #21894
+//
 //
 // copyleft :    Synchrotron SOLEIL 
 //               L'Orme des merisiers - Saint Aubin
@@ -54,6 +57,8 @@ static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.1 2012-02-23 17:46:18 oliv
 //  BrakeON                      |  brake_on()
 //  BrakeOFF                     |  brake_off()
 //  FaultAck                     |  fault_ack()
+//  Enable                       |  enable()
+//  Disable                      |  disable()
 //
 //===================================================================
 
@@ -291,7 +296,15 @@ void EnsembleAxis::write_relativeMove(Tango::WAttribute &attr)
                      "axis is already moving [wait for movement end]",
                      "EnsembleAxis::write_relativeMove");
   }
-
+  ENSEMBLE_PROXY->get_axis_fault_status (this->axis_name, st);
+  if (st != 0)
+  {
+    char err_text [256];
+    ENSEMBLE_PROXY->error_to_string (st, err_text);
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     err_text,
+                     "EnsembleAxis::write_relative_move");
+  }
   attr.get_write_value (attr_relativeMove_write);
   ENSEMBLE_PROXY->axis_move_rel (this->axis_name, attr_position_write);
 
@@ -311,7 +324,7 @@ void EnsembleAxis::read_isBrakeOn(Tango::Attribute &attr)
     return;
   int st = 0;
   ENSEMBLE_PROXY->get_axis_status (this->axis_name, st);
-  *attr_isBrakeOn_read = ENSEMBLE_PROXY->is_moving (st);
+  *attr_isBrakeOn_read = ENSEMBLE_PROXY->is_brake_on (st);
   attr.set_value (attr_isBrakeOn_read);
 }
 
@@ -359,6 +372,15 @@ void EnsembleAxis::write_position(Tango::WAttribute &attr)
   {
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      "axis is already moving [wait for movement end]",
+                     "EnsembleAxis::write_position");
+  }
+  ENSEMBLE_PROXY->get_axis_fault_status (this->axis_name, st);
+  if (st != 0)
+  {
+    char err_text [256];
+    ENSEMBLE_PROXY->error_to_string (st, err_text);
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     err_text,
                      "EnsembleAxis::write_position");
   }
 
@@ -432,6 +454,18 @@ void EnsembleAxis::write_velocity(Tango::WAttribute &attr)
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      "device not properly initialized [check properties, communication lost]",
                      "EnsembleAxis::write_velocity");
+
+  int st = 0;
+  ENSEMBLE_PROXY->get_axis_fault_status (this->axis_name, st);
+  if (st != 0)
+  {
+    char err_text [256];
+    ENSEMBLE_PROXY->error_to_string (st, err_text);
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     err_text,
+                     "EnsembleAxis::write_position");
+  }
+
   attr.get_write_value (attr_velocity_write);
   ENSEMBLE_PROXY->set_axis_default_speed (axis_name, attr_velocity_write);
 }
@@ -598,7 +632,9 @@ Tango::DevState EnsembleAxis::dev_state()
   }
 
   int st = 0;
+  int err = 0;
   ENSEMBLE_PROXY->get_axis_status (this->axis_name, st);
+  ENSEMBLE_PROXY->get_axis_fault_status (this->axis_name, err);
 
   //- could not move (brake ON or driver disabled)
   if (ENSEMBLE_PROXY->is_brake_on (st) ||
@@ -620,24 +656,15 @@ Tango::DevState EnsembleAxis::dev_state()
   }
 
   //- Alarm
-  if (!ENSEMBLE_PROXY->is_homed (st))
+  if (!ENSEMBLE_PROXY->is_homed (st) ||
+      ((err & 0x3C) != 0))            //- Hard or soft limits
   {
     argout = Tango::ALARM;
     set_state (argout);
     return argout;
   }
 
-  //- Standby
-  if (!ENSEMBLE_PROXY->is_in_position (st))
-  {
-    argout = Tango::STANDBY;
-    set_state (argout);
-    return argout;
-  }
-
   //- fault
-  int err = 0;
-  ENSEMBLE_PROXY->get_axis_fault_status (this->axis_name, err);
   if (ENSEMBLE_PROXY->is_emergency_stop (st) ||
       ENSEMBLE_PROXY->is_encoder_error  (st) ||
       err != 0)
@@ -645,8 +672,16 @@ Tango::DevState EnsembleAxis::dev_state()
     argout = Tango::FAULT;
     set_state (argout);
     return argout;
-  }
+  } 
   
+  //- Standby
+  if (ENSEMBLE_PROXY->is_in_position (st))
+  {
+    argout = Tango::STANDBY;
+    set_state (argout);
+    return argout;
+  }
+ 
   //- out of position, not moving,... dont know.
   argout = Tango::ALARM;
 	set_state(argout);
@@ -700,12 +735,16 @@ Tango::ConstDevString EnsembleAxis::dev_status()
     m_status_str += "Brake OFF\n";
   if (ENSEMBLE_PROXY->is_homed (st))
     m_status_str += "Axis Homing Done\n";
+  else
+    m_status_str += "Axis NOT HOMED\n";
   if (ENSEMBLE_PROXY->is_moving (st))
     m_status_str += "Axis Moving\n";
   if (ENSEMBLE_PROXY->is_accelerating (st))
     m_status_str += "Axis Accelerating\n";
   if (ENSEMBLE_PROXY->is_decelerating (st))
     m_status_str += "Axis Decelerating\n";
+  if (ENSEMBLE_PROXY->is_accel_or_decel (st))
+    m_status_str += "Axis Accelerating OR decelerating\n";
   if (ENSEMBLE_PROXY->is_in_position (st))
     m_status_str += "Axis in position\n";
   else
@@ -746,5 +785,59 @@ bool EnsembleAxis::is_init()
   return true;
 }
 
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	EnsembleAxis::enable
+ *
+ *	description:	method to execute "Enable"
+ *	enables the related driver
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void EnsembleAxis::enable()
+{
+	DEBUG_STREAM << "EnsembleAxis::enable(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (! is_init ())
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "EnsembleAxis::enable");
+  bool ok = ENSEMBLE_PROXY->axis_enable (this->axis_name);
+  if (!ok)
+   THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "EnsembleAxis::enable");
+
+}
+
+//+------------------------------------------------------------------
+/**
+ *	method:	EnsembleAxis::disable
+ *
+ *	description:	method to execute "Disable"
+ *	disables the related driver
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void EnsembleAxis::disable()
+{
+	DEBUG_STREAM << "EnsembleAxis::disable(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (! is_init ())
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "EnsembleAxis::diable");
+  bool ok = ENSEMBLE_PROXY->axis_disable (this->axis_name);
+  if (!ok)
+   THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "EnsembleAxis::disable");
+}
 
 }	//	namespace

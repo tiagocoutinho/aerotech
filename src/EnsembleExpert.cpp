@@ -1,4 +1,4 @@
-static const char *RcsId = "$Id:  $";
+static const char *RcsId = "$Id: EnsembleExpert.cpp,v 1.1 2012/02/23 17:46:18 olivierroux Exp $";
 //+=============================================================================
 //
 // file :         EnsembleExpert.cpp
@@ -11,19 +11,22 @@ static const char *RcsId = "$Id:  $";
 //
 // project :      TANGO Device Server
 //
-// $Author:  $
+// $Author: olivierroux $
 //
-// $Revision:  $
+// $Revision: 1.1 $
 //
-// $Revision:  $
-// $Date:  $
+// $Revision: 1.1 $
+// $Date: 2012/02/23 17:46:18 $
 //
 // SVN only:
 // $HeadURL: $
 //
 // CVS only:
-// $Source:  $
-// $Log:  $
+// $Source: /cvsroot/tango-ds/Motion/Aerotech/src/EnsembleExpert.cpp,v $
+// $Log: EnsembleExpert.cpp,v $
+// Revision 1.1  2012/02/23 17:46:18  olivierroux
+// - initial import #21894
+//
 //
 // copyleft :    Synchrotron SOLEIL 
 //               L'Orme des merisiers - Saint Aubin
@@ -563,6 +566,8 @@ Tango::DevState EnsembleExpert::dev_state()
 
   int st = 0;
   ENSEMBLE_PROXY->get_axis_status (this->axis_name, st);
+  int err = 0;
+  ENSEMBLE_PROXY->get_axis_fault_status (this->axis_name, err);
 
   //- could not move (brake ON or driver disabled)
   if (ENSEMBLE_PROXY->is_brake_on (st) ||
@@ -584,24 +589,15 @@ Tango::DevState EnsembleExpert::dev_state()
   }
 
   //- Alarm
-  if (!ENSEMBLE_PROXY->is_homed (st))
+  if (!ENSEMBLE_PROXY->is_homed (st) ||
+      ((err & 0x3C) != 0))            //- Hard or soft limits)
   {
     argout = Tango::ALARM;
     set_state (argout);
     return argout;
   }
 
-  //- Standby
-  if (!ENSEMBLE_PROXY->is_in_position (st))
-  {
-    argout = Tango::STANDBY;
-    set_state (argout);
-    return argout;
-  }
-
   //- fault
-  int err = 0;
-  ENSEMBLE_PROXY->get_axis_fault_status (this->axis_name, err);
   if (ENSEMBLE_PROXY->is_emergency_stop (st) ||
       ENSEMBLE_PROXY->is_encoder_error  (st) ||
       err != 0)
@@ -610,6 +606,16 @@ Tango::DevState EnsembleExpert::dev_state()
     set_state (argout);
     return argout;
   }
+
+  //- Standby
+  if (ENSEMBLE_PROXY->is_in_position (st))
+  {
+    argout = Tango::STANDBY;
+    set_state (argout);
+    return argout;
+  }
+
+
   
   //- out of position, not moving,... dont know.
   argout = Tango::ALARM;
@@ -663,12 +669,16 @@ Tango::ConstDevString EnsembleExpert::dev_status()
     m_status_str += "Brake OFF\n";
   if (ENSEMBLE_PROXY->is_homed (st))
     m_status_str += "Axis Homing Done\n";
+  else
+    m_status_str += "Axis NOT HOMED\n";
   if (ENSEMBLE_PROXY->is_moving (st))
     m_status_str += "Axis Moving\n";
   if (ENSEMBLE_PROXY->is_accelerating (st))
     m_status_str += "Axis Accelerating\n";
   if (ENSEMBLE_PROXY->is_decelerating (st))
     m_status_str += "Axis Decelerating\n";
+  if (ENSEMBLE_PROXY->is_accel_or_decel (st))
+    m_status_str += "Axis Accelerating OR decelerating\n";
   if (ENSEMBLE_PROXY->is_in_position (st))
     m_status_str += "Axis in position\n";
   else

@@ -1,4 +1,4 @@
-static const char *ClassId    = "$Id: EnsembleAxisClass.cpp,v 1.1 2012-02-23 17:46:18 olivierroux Exp $";
+static const char *ClassId    = "$Id: EnsembleAxisClass.cpp,v 1.2 2012-03-02 15:45:11 jean_coquet Exp $";
 static const char *TagName    = "$Name: not supported by cvs2svn $";
 static const char *CvsPath    = "$Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleAxisClass.cpp,v $";
 static const char *SvnPath    = "$HeadURL: $";
@@ -14,11 +14,14 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //
 // project :     TANGO Device Server
 //
-// $Author: olivierroux $
+// $Author: jean_coquet $
 //
-// $Revision: 1.1 $
+// $Revision: 1.2 $
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2012/02/23 17:46:18  olivierroux
+// - initial import #21894
+//
 //
 // copyleft :   European Synchrotron Radiation Facility
 //              BP 220, Grenoble 38043
@@ -59,6 +62,50 @@ __declspec(dllexport)
 
 namespace EnsembleAxis_ns
 {
+//+----------------------------------------------------------------------------
+//
+// method : 		DisableClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *DisableClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "DisableClass::execute(): arrived" << endl;
+
+	((static_cast<EnsembleAxis *>(device))->disable());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		EnableClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *EnableClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "EnableClass::execute(): arrived" << endl;
+
+	((static_cast<EnsembleAxis *>(device))->enable());
+	return new CORBA::Any();
+}
+
 //+----------------------------------------------------------------------------
 //
 // method : 		FaultAckClass::execute()
@@ -279,6 +326,16 @@ void EnsembleAxisClass::command_factory()
 		"",
 		Tango::OPERATOR));
 	command_list.push_back(new FaultAckClass("FaultAck",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new EnableClass("Enable",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new DisableClass("Disable",
 		Tango::DEV_VOID, Tango::DEV_VOID,
 		"",
 		"",

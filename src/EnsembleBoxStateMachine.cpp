@@ -8,10 +8,10 @@ static const char *RcsId = "$Id $";
 //
 // project :      TANGO Device Server
 //
-// $Author: olivierroux $
+// $Author: jean_coquet $
 //
-// $Revision: 1.1 $
-// $Date: 2012-02-23 17:46:18 $
+// $Revision: 1.2 $
+// $Date: 2012-03-02 15:45:15 $
 //
 // SVN only:
 // $HeadURL: $
@@ -19,6 +19,9 @@ static const char *RcsId = "$Id $";
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBoxStateMachine.cpp,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2012/02/23 17:46:18  olivierroux
+// - initial import #21894
+//
 //
 // copyleft :     European Synchrotron Radiation Facility
 //                BP 220, Grenoble 38043
@@ -95,6 +98,20 @@ bool EnsembleBox::is_badCommandCounter_allowed(Tango::AttReqType type)
 //
 //-----------------------------------------------------------------------------
 bool EnsembleBox::is_Reset_allowed(const CORBA::Any &any)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		EnsembleBox::is_ExecLowLevelCmd_allowed
+// 
+// description : 	Execution allowed for ExecLowLevelCmd command.
+//
+//-----------------------------------------------------------------------------
+bool EnsembleBox::is_ExecLowLevelCmd_allowed(const CORBA::Any &any)
 {
 		//	End of Generated Code
 

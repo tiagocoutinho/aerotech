@@ -10,10 +10,10 @@
 //			
 // project :      TANGO Device Server
 //
-// $Author: olivierroux $
+// $Author: jean_coquet $
 //
-// $Revision: 1.1 $
-// $Date: 2012-02-23 17:46:18 $
+// $Revision: 1.2 $
+// $Date: 2012-03-02 15:45:15 $
 //
 // SVN only:
 // $HeadURL: $
@@ -21,6 +21,9 @@
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBoxClass.h,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2012/02/23 17:46:18  olivierroux
+// - initial import #21894
+//
 //
 // copyleft :     European Synchrotron Radiation Facility
 //                BP 220, Grenoble 38043
@@ -72,6 +75,30 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
+class ExecLowLevelCmdClass : public Tango::Command
+{
+public:
+	ExecLowLevelCmdClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	ExecLowLevelCmdClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~ExecLowLevelCmdClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<EnsembleBox *>(dev))->is_ExecLowLevelCmd_allowed(any);}
+};
+
+
+
 class ResetClass : public Tango::Command
 {
 public:
