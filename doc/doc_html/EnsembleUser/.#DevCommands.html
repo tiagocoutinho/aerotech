@@ -45,10 +45,10 @@
 <h1>
 Ensemble		<Br>
 Device Commands Description 		<Br> <Br>
-EnsembleBox Class	<Br>
+EnsembleAxis Class	<Br>
 </h1>
 <b>
-Revision:  - Author: olivierroux
+Revision:  - Author: jean_coquet
 </b>
 </center>
 
@@ -102,11 +102,11 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Br>&nbsp
 </ul><Br>
 <Br>
-<A NAME="Reset"><!-- --></A>
-<A NAME="Reset"><!-- --></A>
-<h2>4 - Reset</h2>
+<A NAME="Stop"><!-- --></A>
+<A NAME="Stop"><!-- --></A>
+<h2>4 - Stop</h2>
 <ul>
-<Li><Strong>Description: </Strong> Reset the controller<Br>&nbsp
+<Li><Strong>Description: </Strong> Stops motor<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -116,15 +116,56 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Br>&nbsp
 </ul><Br>
 <Br>
-<A NAME="ExecLowLevelCmd"><!-- --></A>
-<A NAME="ExecLowLevelCmd"><!-- --></A>
-<h2>5 - ExecLowLevelCmd</h2>
+<A NAME="InitializeReferencePosition"><!-- --></A>
+<A NAME="InitializeReferencePosition"><!-- --></A>
+<h2>5 - InitializeReferencePosition</h2>
 <ul>
-<Li><Strong>Description: </Strong> executes a Aerotech cmd and returns the response
-** WARNING : EXPERT USERS ONLY! YOU CAN CRASH THE CONTROLLER! **<Br>&nbsp
-<Li><Strong>Argin:<Br>DEV_STRING</Strong>
+<Li><Strong>Description: </Strong> makes a Home 0<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
-<Li><Strong>Argout:<Br>DEV_STRING</Strong>
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="BrakeON"><!-- --></A>
+<A NAME="BrakeON"><!-- --></A>
+<h2>6 - BrakeON</h2>
+<ul>
+<Li><Strong>Description: </Strong> applies the brake<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="BrakeOFF"><!-- --></A>
+<A NAME="BrakeOFF"><!-- --></A>
+<h2>7 - BrakeOFF</h2>
+<ul>
+<Li><Strong>Description: </Strong> release the brake<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="FaultAck"><!-- --></A>
+<A NAME="FaultAck"><!-- --></A>
+<h2>8 - FaultAck</h2>
+<ul>
+<Li><Strong>Description: </Strong> Acknowledges and clears faults on the Ensemble Driver<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
 </Ul>
