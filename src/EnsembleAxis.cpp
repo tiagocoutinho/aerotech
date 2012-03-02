@@ -1,4 +1,4 @@
-static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.2 2012-03-02 15:45:12 jean_coquet Exp $";
+static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.3 2012-03-02 16:26:26 jean_coquet Exp $";
 //+=============================================================================
 //
 // file :         EnsembleAxis.cpp
@@ -13,10 +13,10 @@ static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.2 2012-03-02 15:45:12 jean
 //
 // $Author: jean_coquet $
 //
-// $Revision: 1.2 $
+// $Revision: 1.3 $
 //
-// $Revision: 1.2 $
-// $Date: 2012-03-02 15:45:12 $
+// $Revision: 1.3 $
+// $Date: 2012-03-02 16:26:26 $
 //
 // SVN only:
 // $HeadURL: $
@@ -24,6 +24,9 @@ static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.2 2012-03-02 15:45:12 jean
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleAxis.cpp,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2012/03/02 15:45:12  jean_coquet
+// mise au point avec le materiel
+//
 // Revision 1.1  2012/02/23 17:46:18  olivierroux
 // - initial import #21894
 //
@@ -342,7 +345,7 @@ void EnsembleAxis::read_position(Tango::Attribute &attr)
   if (! is_init ())
     return;
 //-  double tmp = yat::IEEE_NAN;
-  double tmp = IEEE_NAN;
+  double tmp = yat::IEEE_NAN;
   ENSEMBLE_PROXY->get_axis_position (this->axis_name, tmp);
   *attr_position_read = tmp + *attr_offset_read;
   attr.set_value (attr_position_read);
