@@ -8,7 +8,7 @@
    </parent>
    <groupId>fr.soleil.device</groupId>
    <artifactId>Aerotech-${aol}-${mode}</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>1.0.0</version>
    <packaging>nar</packaging>
    <name>Aerotech</name>
    <description>Aerotech device</description>
@@ -30,7 +30,6 @@
      <dependency>
        <groupId>fr.soleil.lib</groupId>
        <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-       <version>1.7.6</version>
      </dependency>
    </dependencies>
    <scm>
