@@ -71,7 +71,7 @@ bool ClassEnsemble::axis_home(char *axis_name)
 
 bool ClassEnsemble::commit_parameters()
 {
-  if (! is_ready_to_accept_cmd ("ALL"))
+  if (! is_ready_to_accept_cmd (const_cast <char*> ("ALL")))
     return false;
   char s[SIZE_BUFFER];
   sprintf(s,"COMITPARAMETERS \n");
@@ -257,7 +257,7 @@ bool ClassEnsemble::get_axis_software_limit_low(char *axis_name,double &limit)
 {
   char string_received[SIZE_BUFFER];
   bool ok;
-  ok=get_param(axis_name,"softwareLimitLow",string_received);
+  ok=get_param(axis_name,const_cast <char*> ("softwareLimitLow"),string_received);
   sscanf(string_received,"%lf",&limit);
   return ok;
 }
@@ -266,7 +266,7 @@ bool ClassEnsemble::get_axis_software_limit_high(char *axis_name,double &limit)
 {
   char string_received[SIZE_BUFFER];
   bool ok;
-  ok=get_param(axis_name,"softwareLimitHigh",string_received);
+  ok=get_param(axis_name,const_cast <char*> ("softwareLimitHigh"),string_received);
   sscanf(string_received,"%lf",&limit);
   return ok;
 }
@@ -276,7 +276,7 @@ bool ClassEnsemble::set_axis_software_limit_low(char *axis_name,double limit)
   char s[SIZE_BUFFER];
   bool ok;
   sprintf(s,"%lf",limit);
-  ok=set_param(axis_name,"softwareLimitLow",s);
+  ok=set_param(axis_name,const_cast <char*> ("softwareLimitLow"),s);
   return ok;;
 }
 
@@ -285,7 +285,7 @@ bool ClassEnsemble::set_axis_software_limit_high(char *axis_name,double limit)
   char s[SIZE_BUFFER];
   bool ok;
   sprintf(s,"%lf",limit);
-  ok=set_param(axis_name,"softwareLimitHigh",s);
+  ok=set_param(axis_name,const_cast <char*> ("softwareLimitHigh"),s);
   return ok;
 }
 
@@ -305,7 +305,7 @@ bool ClassEnsemble::get_axis_error_limit(char *axis_name,double &limit)
 {
   char string_received[SIZE_BUFFER];
   bool ok;
-  ok=get_param(axis_name,"PositionErrorThreshold",string_received);
+  ok=get_param(axis_name,const_cast <char*> ("PositionErrorThreshold"),string_received);
   sscanf(string_received,"%lf",&limit);
   return ok;
 }
@@ -314,14 +314,14 @@ bool ClassEnsemble::set_axis_error_limit(char *axis_name,double limit)
 {
   char s[SIZE_BUFFER];
   sprintf(s,"%lf",limit);
-  return(set_param(axis_name,"PositionErrorThreshold",s));
+  return(set_param(axis_name,const_cast <char*> ("PositionErrorThreshold"),s));
 }
 
 bool ClassEnsemble::get_axis_default_speed(char *axis_name,double &speed)
 {
   char string_received[SIZE_BUFFER];
   bool ok;
-  ok=get_param(axis_name,"DefaultSpeed",string_received);
+  ok=get_param(axis_name,const_cast <char*> ("DefaultSpeed"),string_received);
   sscanf(string_received,"%lf",&speed);
   return ok;
 }
@@ -332,7 +332,7 @@ bool ClassEnsemble::set_axis_default_speed(char *axis_name,double speed)
   char sformat[SIZE_BUFFER];
   bool ok;
   sprintf(s,"%lf",speed);
-  ok=set_param(axis_name,"DefaultSpeed",s);
+  ok=set_param(axis_name,const_cast <char*> ("DefaultSpeed"),s);
   if (ok)
   {
     // send a "MOVEINC Axis F speed" - a relative nul displacement to set the velocity
@@ -347,7 +347,7 @@ bool ClassEnsemble::get_axis_ramp_rate(char *axis_name,double &ramp_rate)
 {
   char string_received[SIZE_BUFFER];
   bool ok;
-  ok=get_param(axis_name,"Defaultramprate",string_received);
+  ok=get_param(axis_name,const_cast <char*> ("Defaultramprate"),string_received);
   sscanf(string_received,"%lf",&ramp_rate);
   return ok;
 }
@@ -360,7 +360,7 @@ bool ClassEnsemble::set_axis_ramp_rate(char *axis_name,double ramp_rate)
   char sformat[SIZE_BUFFER];
   bool ok;
   sprintf(s,"%lf",ramp_rate);
-  ok=set_param(axis_name,"Defaultramprate",s);
+  ok=set_param(axis_name,const_cast <char*> ("Defaultramprate"),s);
   if (ok)
   {
     sprintf(sformat,"RAMP RATE %%s  %%.%df\n",NB_DIGITS);
@@ -374,7 +374,7 @@ bool ClassEnsemble::get_axis_home_speed(char *axis_name,double &home_speed)
 {
   char string_received[SIZE_BUFFER];
   bool ok;
-  ok=get_param(axis_name,"homespeed",string_received);
+  ok=get_param(axis_name,const_cast <char*> ("homespeed"),string_received);
   sscanf(string_received,"%lf",&home_speed);
   return ok;
 }
@@ -383,14 +383,14 @@ bool ClassEnsemble::set_axis_home_speed(char *axis_name,double home_speed)
 {
   char s[SIZE_BUFFER];
   sprintf(s,"%lf",home_speed);
-  return (set_param(axis_name,"homespeed",s));
+  return (set_param(axis_name,const_cast <char*> ("homespeed"),s));
 }
 
 bool ClassEnsemble::get_axis_home_offset(char *axis_name,double &offset)
 {
   char string_received[SIZE_BUFFER];
   bool ok;
-  ok=get_param(axis_name,"homeoffset",string_received);
+  ok=get_param(axis_name,const_cast <char*> ("homeoffset"),string_received);
   sscanf(string_received,"%lf",&offset);
   return ok;
 }
@@ -399,7 +399,7 @@ bool ClassEnsemble::set_axis_home_offset(char *axis_name,double offset)
 {
   char s[SIZE_BUFFER];
   sprintf(s,"%lf",offset);
-  return (set_param(axis_name,"homeoffset",s));
+  return (set_param(axis_name,const_cast <char*> ("homeoffset"),s));
 }
 
 bool ClassEnsemble::lowlevelcmd(char * argin, char * argout)
@@ -499,7 +499,7 @@ bool ClassEnsemble::is_brake_off( int status)
 bool ClassEnsemble::reset()
 {
   bool ok;
-  ok=send_string("RESET\n");
+  ok=send_string(const_cast <char*> ("RESET\n"));
   if (ok) 
   {
     is_connected=false;
@@ -519,7 +519,7 @@ bool ClassEnsemble::create_socket(char *address,int port)
     sock->set_option(yat::Socket::SOCK_OPT_OTIMEOUT, 1000);
     sock->set_option(yat::Socket::SOCK_OPT_ITIMEOUT, 2500);
 
-    yat::Address adr (address, 8000);
+    yat::Address adr (address, port);
     sock->connect (adr);
     return true;
   }
