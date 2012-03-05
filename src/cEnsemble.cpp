@@ -99,7 +99,8 @@ bool ClassEnsemble::axis_brake_on(char *axis_name)
   if (! is_ready_to_accept_cmd (axis_name))
     return false;
   char s[SIZE_BUFFER];
-  sprintf(s,"BRAKE %s ON\n",axis_name);
+  //- positive security so to brake power off brake solenoid
+  sprintf(s,"BRAKE %s OFF\n",axis_name);
   return send_string(s);
 }
 
@@ -108,7 +109,8 @@ bool ClassEnsemble::axis_brake_off(char *axis_name)
   if (! is_ready_to_accept_cmd (axis_name))
     return false;
   char s[SIZE_BUFFER];
-  sprintf(s,"BRAKE %s OFF\n",axis_name);
+  //- positive security so to unbrake power on brake solenoid
+  sprintf(s,"BRAKE %s ON\n",axis_name);
   return send_string(s);
 }
 
