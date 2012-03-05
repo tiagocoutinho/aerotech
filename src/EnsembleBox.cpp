@@ -1,4 +1,4 @@
-static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.2 2012-03-02 15:45:12 jean_coquet Exp $";
+static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.3 2012-03-05 08:43:07 jean_coquet Exp $";
 //+=============================================================================
 //
 // file :         EnsembleBox.cpp
@@ -13,10 +13,10 @@ static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.2 2012-03-02 15:45:12 jean_
 //
 // $Author: jean_coquet $
 //
-// $Revision: 1.2 $
+// $Revision: 1.3 $
 //
-// $Revision: 1.2 $
-// $Date: 2012-03-02 15:45:12 $
+// $Revision: 1.3 $
+// $Date: 2012-03-05 08:43:07 $
 //
 // SVN only:
 // $HeadURL: $
@@ -24,6 +24,9 @@ static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.2 2012-03-02 15:45:12 jean_
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBox.cpp,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2012/03/02 15:45:12  jean_coquet
+// mise au point avec le materiel
+//
 // Revision 1.1  2012/02/23 17:46:18  olivierroux
 // - initial import #21894
 //
@@ -54,6 +57,7 @@ static const char *RcsId = "$Id: EnsembleBox.cpp,v 1.2 2012-03-02 15:45:12 jean_
 //  Status           |  dev_status()
 //  Reset            |  reset()
 //  ExecLowLevelCmd  |  exec_low_level_cmd()
+//  SaveInFlash      |  save_in_flash()
 //
 //===================================================================
 
@@ -408,5 +412,31 @@ Tango::DevString EnsembleBox::exec_low_level_cmd(Tango::DevString argin)
                     "EnsembleBox::exec_low_level_cmd");
 	return argout;
 }
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	EnsembleBox::save_in_flash
+ *
+ *	description:	method to execute "SaveInFlash"
+ *	writes in non volatile memory the parameters for all controllers
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void EnsembleBox::save_in_flash()
+{
+	DEBUG_STREAM << "EnsembleBox::save_in_flash(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (! m_init_device_done || m_properties_missing)
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "EnsembleBox::save_in_flash");
+  bool ok = ENSEMBLE_PROXY->commit_parameters ();
+  if (!ok)
+   THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "EnsembleAxis::save_in_flash");}
 
 }	//	namespace

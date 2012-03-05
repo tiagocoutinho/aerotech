@@ -8,8 +8,8 @@
 //
 // $Author: jean_coquet $
 //
-// $Revision: 1.2 $
-// $Date: 2012-03-02 15:45:15 $
+// $Revision: 1.3 $
+// $Date: 2012-03-05 08:43:07 $
 //
 // SVN only:
 // $HeadURL: $
@@ -17,6 +17,9 @@
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBox.h,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2012/03/02 15:45:15  jean_coquet
+// mise au point avec le materiel
+//
 // Revision 1.1  2012/02/23 17:46:18  olivierroux
 // - initial import #21894
 //
@@ -41,7 +44,7 @@
 
 /**
  * @author	$Author: jean_coquet $
- * @version	$Revision: 1.2 $
+ * @version	$Revision: 1.3 $
  */
 
  //	Add your own constant definitions here.
@@ -194,6 +197,10 @@ public :
  */
 	virtual bool is_ExecLowLevelCmd_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for SaveInFlash command.
+ */
+	virtual bool is_SaveInFlash_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -218,6 +225,11 @@ public :
  *	@exception DevFailed
  */
 	Tango::DevString	exec_low_level_cmd(Tango::DevString);
+/**
+ * writes in non volatile memory the parameters for all controllers
+ *	@exception DevFailed
+ */
+	void	save_in_flash();
 
 /**
  *	Read the device properties from database

@@ -1,4 +1,4 @@
-static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.3 2012-03-02 16:26:26 jean_coquet Exp $";
+static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.4 2012-03-05 08:43:07 jean_coquet Exp $";
 //+=============================================================================
 //
 // file :         EnsembleAxis.cpp
@@ -13,10 +13,10 @@ static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.3 2012-03-02 16:26:26 jean
 //
 // $Author: jean_coquet $
 //
-// $Revision: 1.3 $
+// $Revision: 1.4 $
 //
-// $Revision: 1.3 $
-// $Date: 2012-03-02 16:26:26 $
+// $Revision: 1.4 $
+// $Date: 2012-03-05 08:43:07 $
 //
 // SVN only:
 // $HeadURL: $
@@ -24,6 +24,9 @@ static const char *RcsId = "$Id: EnsembleAxis.cpp,v 1.3 2012-03-02 16:26:26 jean
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleAxis.cpp,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2012/03/02 16:26:26  jean_coquet
+// technical commit
+//
 // Revision 1.2  2012/03/02 15:45:12  jean_coquet
 // mise au point avec le materiel
 //
@@ -309,7 +312,7 @@ void EnsembleAxis::write_relativeMove(Tango::WAttribute &attr)
                      "EnsembleAxis::write_relative_move");
   }
   attr.get_write_value (attr_relativeMove_write);
-  ENSEMBLE_PROXY->axis_move_rel (this->axis_name, attr_position_write);
+  ENSEMBLE_PROXY->axis_move_rel (this->axis_name, attr_relativeMove_write);
 
 }
 
@@ -490,6 +493,10 @@ void EnsembleAxis::stop()
 	DEBUG_STREAM << "EnsembleAxis::stop(): entering... !" << endl;
 
 	//	Add your own code to control device here
+  if (! is_init ())
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "EnsembleAxis::initialize_reference_position");
   bool ok = false;
   ok = ENSEMBLE_PROXY->axis_abort (axis_name);
   if (!ok)

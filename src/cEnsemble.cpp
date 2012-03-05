@@ -71,6 +71,8 @@ bool ClassEnsemble::axis_home(char *axis_name)
 
 bool ClassEnsemble::commit_parameters()
 {
+  if (! is_ready_to_accept_cmd ("ALL"))
+    return false;
   char s[SIZE_BUFFER];
   sprintf(s,"COMITPARAMETERS \n");
   return send_string(s);

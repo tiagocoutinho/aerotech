@@ -10,8 +10,8 @@ static const char *RcsId = "$Id $";
 //
 // $Author: jean_coquet $
 //
-// $Revision: 1.2 $
-// $Date: 2012-03-02 15:45:15 $
+// $Revision: 1.3 $
+// $Date: 2012-03-05 08:43:07 $
 //
 // SVN only:
 // $HeadURL: $
@@ -19,6 +19,9 @@ static const char *RcsId = "$Id $";
 // CVS only:
 // $Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBoxStateMachine.cpp,v $
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2012/03/02 15:45:15  jean_coquet
+// mise au point avec le materiel
+//
 // Revision 1.1  2012/02/23 17:46:18  olivierroux
 // - initial import #21894
 //
@@ -112,6 +115,20 @@ bool EnsembleBox::is_Reset_allowed(const CORBA::Any &any)
 //
 //-----------------------------------------------------------------------------
 bool EnsembleBox::is_ExecLowLevelCmd_allowed(const CORBA::Any &any)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		EnsembleBox::is_SaveInFlash_allowed
+// 
+// description : 	Execution allowed for SaveInFlash command.
+//
+//-----------------------------------------------------------------------------
+bool EnsembleBox::is_SaveInFlash_allowed(const CORBA::Any &any)
 {
 		//	End of Generated Code
 

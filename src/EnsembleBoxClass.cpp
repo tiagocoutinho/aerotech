@@ -1,4 +1,4 @@
-static const char *ClassId    = "$Id: EnsembleBoxClass.cpp,v 1.2 2012-03-02 15:45:13 jean_coquet Exp $";
+static const char *ClassId    = "$Id: EnsembleBoxClass.cpp,v 1.3 2012-03-05 08:43:07 jean_coquet Exp $";
 static const char *TagName    = "$Name: not supported by cvs2svn $";
 static const char *CvsPath    = "$Source: /users/chaize/newsvn/cvsroot/Motion/Aerotech/src/EnsembleBoxClass.cpp,v $";
 static const char *SvnPath    = "$HeadURL: $";
@@ -16,9 +16,12 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //
 // $Author: jean_coquet $
 //
-// $Revision: 1.2 $
+// $Revision: 1.3 $
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2012/03/02 15:45:13  jean_coquet
+// mise au point avec le materiel
+//
 // Revision 1.1  2012/02/23 17:46:18  olivierroux
 // - initial import #21894
 //
@@ -62,6 +65,28 @@ __declspec(dllexport)
 
 namespace EnsembleBox_ns
 {
+//+----------------------------------------------------------------------------
+//
+// method : 		SaveInFlashClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SaveInFlashClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SaveInFlashClass::execute(): arrived" << endl;
+
+	((static_cast<EnsembleBox *>(device))->save_in_flash());
+	return new CORBA::Any();
+}
+
 //+----------------------------------------------------------------------------
 //
 // method : 		ExecLowLevelCmdClass::execute()
@@ -203,6 +228,11 @@ void EnsembleBoxClass::command_factory()
 		Tango::OPERATOR));
 	command_list.push_back(new ExecLowLevelCmdClass("ExecLowLevelCmd",
 		Tango::DEV_STRING, Tango::DEV_STRING,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new SaveInFlashClass("SaveInFlash",
+		Tango::DEV_VOID, Tango::DEV_VOID,
 		"",
 		"",
 		Tango::OPERATOR));
