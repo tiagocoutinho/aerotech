@@ -4,6 +4,8 @@
 //-------------------------------------------------------------------
 
 #include "cEnsemble.h"
+#include <stdio.h>
+#include <string.h>
 namespace Aerotech_ns
 {
 

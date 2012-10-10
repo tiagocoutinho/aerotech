@@ -7,6 +7,9 @@
 #include "AbstractAerotech.h"
 #include "SocketPool.h"
 #include <iostream>
+#include <stdio.h>
+#include <string.h>
+
 
 namespace Aerotech_ns
 {

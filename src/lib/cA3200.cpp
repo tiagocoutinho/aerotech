@@ -6,6 +6,8 @@
 //--------------------------------------------------------------------------------
 
 #include "cA3200.h"
+#include <stdio.h>
+#include <string.h>
 
 namespace Aerotech_ns
 {
