@@ -379,7 +379,7 @@ bool AbstractAerotech::connected_ok (void)
 bool AbstractAerotech::programrun (char *pgmname, int task)
 {
   char s[SIZE_BUFFER];
-  sprintf (s, "PROGRAM %i RUN ""%s"" \n", task, pgmname);
+  sprintf (s, "PROGRAM %i RUN \"%s\"\n", task, pgmname);
   return send_string (s);
 }
 
@@ -503,7 +503,6 @@ bool AbstractAerotech::getdoubleregister (int number, double &value)
 
 //-----------------------------------------------------------
 //- AbstractAerotech::reset
-//- cEnsemble specific function
 //- default implementation for polymorphism
 //-----------------------------------------------------------
 bool AbstractAerotech::reset (void)

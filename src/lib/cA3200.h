@@ -41,6 +41,7 @@ namespace Aerotech_ns
     bool set_axis_default_speed(double speed);
     bool set_axis_ramp_rate(double ramp_rate);
     bool get_axis_ramp_rate(double &ramp_rate);
+    bool reset(void);
     bool axis_brake_on(void);
     bool axis_brake_off(void);
     bool get_axis_status( int &status);
