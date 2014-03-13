@@ -694,7 +694,7 @@ Tango::ConstDevString EnsembleExpert::dev_status()
   axis->get_axis_status (raw_status);
 
   std::stringstream s;
-  s << "Raw Status <" << std::hex << std::width (8) << std::setfill ('0') << raw_status << ">" << std::endl;
+  s << "Raw Status <" << std::hex << std::setw (8) << std::setfill ('0') << raw_status << ">" << std::endl;
 
   if (!axis->connected_ok ())
   {
