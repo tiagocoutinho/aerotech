@@ -690,6 +690,11 @@ Tango::ConstDevString EnsembleExpert::dev_status()
     return m_status_str.c_str ();
   }
   m_status_str.clear ();
+  int raw_status = 0;
+  axis->get_axis_status (raw_status);
+
+  std::stringstream s;
+  s << "Raw Status <" << std::hex << std::width (8) << std::setfill ('0') << raw_status << ">" << std::endl;
 
   if (!axis->connected_ok ())
   {
