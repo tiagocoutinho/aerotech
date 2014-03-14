@@ -38,9 +38,10 @@ bool cEnsemble::get_param (char *param, char *string_received)
   //- ::memset (s, 0, SIZE_BUFFER);
   std::stringstream s;
   s << "GETPARM(" << this->axis_name << "," << param << ")\n";
-  //- std::cout << "cEnsemble::get_param axis_name <" << this->axis_name << "> param <" << param << ">" << std::endl;
+std::cout << "cEnsemble::get_param axis_name <" << this->axis_name << "> param <" << param << "> cmd <" << s.str () << ">" << std::endl;
   // sprintf (s, "GETPARM(%s,%s)\n", this->axis_name, param);
   bool ok = send_receive_and_test (const_cast <char*> (s.str ().c_str ()), string_received);
+//- std::cout << "cEnsemble::get_param axis_name <" << this->axis_name << "> param <" << param << "> cmd <" << s.str () << ">" << "> resp <" << string_received << ">" << std::endl;
   return ok;
 }
 
