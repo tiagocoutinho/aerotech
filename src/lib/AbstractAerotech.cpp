@@ -76,7 +76,7 @@ bool AbstractAerotech::send_string (char *string_to_send)  //send string to cont
 bool AbstractAerotech::send_receive_and_test (char *to_send, char *received)
 {
   bool ok = send_and_receive (to_send, received);
-  //- std::cout << "AbstractAerotech::send_receive_and_test cmd <" << to_send << "> response <" << received << ">" << std::endl;
+std::cout << "AbstractAerotech::send_receive_and_test cmd <" << to_send << "> response <" << received << ">" << std::endl;
   if (!ok)
   {
     //- std::cout << "AbstractAerotech::send_receive_and_test  NOT OK!!!" << std::endl;
