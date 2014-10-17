@@ -1,7 +1,7 @@
 /**
  * Device Class Identification:
  * 
- * Class Name   :	Aerotech, A3200Expert, EnsembleExpert
+ * Class Name   :	AerotechAxis
  * Contact      :	jean.coquet@synchrotron-soleil.fr
  * Class Family :	Motion
  * Platform     :	All Platforms

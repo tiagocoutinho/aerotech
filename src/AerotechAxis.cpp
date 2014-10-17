@@ -70,6 +70,8 @@ static const char *RcsId = "$Id: AerotechAxis.cpp,v 1.4 2012/03/05 08:43:07 jean
 //  FaultAck                     |  fault_ack()
 //  Enable                       |  enable()
 //  Disable                      |  disable()
+//  On                           |  on()
+//  Off                          |  off()
 //
 //===================================================================
 
@@ -677,11 +679,18 @@ Tango::DevState AerotechAxis::dev_state()
   int err = 0;
   axis->get_axis_fault_status ( err);
 
-  //- could not move (brake ON or driver disabled)
-  if (axis->axis_is_brake_on () ||
-      !axis->axis_is_enabled ())
+  //- could not move (driver disabled = OFF)
+  if (!axis->axis_is_enabled ())
   {
-    argout = Tango::DISABLE;
+    argout = Tango::OFF;
+    set_state (argout);
+    return argout;
+  }
+
+  //- could not move (brake ON : axis stopped)
+  if (axis->axis_is_brake_on ())
+  {
+    argout = Tango::STANDBY;
     set_state (argout);
     return argout;
   }
@@ -758,9 +767,9 @@ Tango::ConstDevString AerotechAxis::dev_status()
   }
 
   if (axis->axis_is_enabled ())
-    m_status_str += "Axis Enabled\n";
+    m_status_str += "Axis On (Enabled)\n";
   else
-    m_status_str += "Axis Disabled\n";
+    m_status_str += "Axis Off (Disabled)\n";
   if (axis->axis_is_emergency_stop ())
     m_status_str += "Emergency Stop\n";
   if (axis->axis_is_brake_on ())
@@ -868,7 +877,7 @@ void AerotechAxis::disable()
   if (! is_init ())
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      "device not properly initialized [check properties, communication lost]",
-                     "AerotechAxis::diable");
+                     "AerotechAxis::disable");
 
   if (!axis->axis_disable ())
    THROW_DEVFAILED ("COMMAND_FAILED",
@@ -877,5 +886,62 @@ void AerotechAxis::disable()
 }
 
 
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	AerotechAxis::on
+ *
+ *	description:	method to execute "On"
+ *	Enable power driver
+ *	same as Enable cmd
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void AerotechAxis::on()
+{
+	DEBUG_STREAM << "AerotechAxis::on(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (! is_init ())
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "AerotechAxis::on");
+
+  if (!axis->axis_enable ())
+   THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "AerotechAxis::on");
+
+}
+
+//+------------------------------------------------------------------
+/**
+ *	method:	AerotechAxis::off
+ *
+ *	description:	method to execute "Off"
+ *	Disable power driver
+ *	same as Disable cmd
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void AerotechAxis::off()
+{
+	DEBUG_STREAM << "AerotechAxis::off(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (! is_init ())
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "AerotechAxis::off");
+
+  if (!axis->axis_disable ())
+   THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "AerotechAxis::off");
+
+}
 
 }	//	namespace

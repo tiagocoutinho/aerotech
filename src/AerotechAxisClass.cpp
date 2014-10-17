@@ -67,6 +67,50 @@ namespace AerotechAxis_ns
 {
 //+----------------------------------------------------------------------------
 //
+// method : 		OffCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *OffCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "OffCmd::execute(): arrived" << endl;
+
+	((static_cast<AerotechAxis *>(device))->off());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		OnClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *OnClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "OnClass::execute(): arrived" << endl;
+
+	((static_cast<AerotechAxis *>(device))->on());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		DisableClass::execute()
 // 
 // description : 	method to trigger the execution of the command.
@@ -339,6 +383,16 @@ void AerotechAxisClass::command_factory()
 		"",
 		Tango::OPERATOR));
 	command_list.push_back(new DisableClass("Disable",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new OnClass("On",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new OffCmd("Off",
 		Tango::DEV_VOID, Tango::DEV_VOID,
 		"",
 		"",

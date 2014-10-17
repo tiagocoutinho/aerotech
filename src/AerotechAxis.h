@@ -265,6 +265,14 @@ public :
  */
 	virtual bool is_Disable_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for On command.
+ */
+	virtual bool is_On_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for Off command.
+ */
+	virtual bool is_Off_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -311,6 +319,18 @@ public :
  *	@exception DevFailed
  */
 	void	disable();
+/**
+ * Enable power driver
+ *	same as Enable cmd
+ *	@exception DevFailed
+ */
+	void	on();
+/**
+ * Disable power driver
+ *	same as Disable cmd
+ *	@exception DevFailed
+ */
+	void	off();
 
 /**
  *	Read the device properties from database

@@ -233,5 +233,33 @@ bool AerotechAxis::is_Disable_allowed(const CORBA::Any &any)
 		//	Re-Start of Generated Code
 	return true;
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		AerotechAxis::is_On_allowed
+// 
+// description : 	Execution allowed for On command.
+//
+//-----------------------------------------------------------------------------
+bool AerotechAxis::is_On_allowed(const CORBA::Any &any)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		AerotechAxis::is_Off_allowed
+// 
+// description : 	Execution allowed for Off command.
+//
+//-----------------------------------------------------------------------------
+bool AerotechAxis::is_Off_allowed(const CORBA::Any &any)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
 
 }	// namespace AerotechAxis_ns
