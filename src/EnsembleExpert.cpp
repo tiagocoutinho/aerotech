@@ -617,11 +617,18 @@ Tango::DevState EnsembleExpert::dev_state()
   int err = 0;
   axis->get_axis_fault_status (err);
 
-  //- could not move (brake ON or driver disabled)
-  if (axis->axis_is_brake_on () ||
-      !axis->axis_is_enabled ())
+  //- could not move (driver disabled = motor OFF)
+  if (!axis->axis_is_enabled ())
   {
-    argout = Tango::DISABLE;
+    argout = Tango::OFF;
+    set_state (argout);
+    return argout;
+  }
+
+  //- fault
+  if (axis->axis_is_emergency_stop ())
+  {
+    argout = Tango::FAULT;
     set_state (argout);
     return argout;
   }
@@ -636,6 +643,14 @@ Tango::DevState EnsembleExpert::dev_state()
     return argout;
   }
 
+  //- fault
+  if (err != 0)
+  {
+    argout = Tango::FAULT;
+    set_state (argout);
+    return argout;
+  }
+
   //- Alarm
   if (!axis->axis_is_homed () ||
       ((err & 0x3C) != 0))            //- Hard or soft limits)
@@ -645,28 +660,22 @@ Tango::DevState EnsembleExpert::dev_state()
     return argout;
   }
 
-  //- fault
-  if (axis->axis_is_emergency_stop () || err != 0)
-  {
-    argout = Tango::FAULT;
-    set_state (argout);
-    return argout;
-  }
 
   //- Standby
-  if (axis->axis_is_in_position ())
+  if (axis->axis_is_in_position () || axis->axis_is_enabled ())
   {
     argout = Tango::STANDBY;
     set_state (argout);
     return argout;
   }
 
-
-  
+ 
   //- out of position, not moving,... dont know.
   argout = Tango::ALARM;
 	set_state(argout);
-	return argout;}
+	return argout;
+
+}
 
 //+------------------------------------------------------------------
 /**
