@@ -8,7 +8,7 @@
    </parent>
    <groupId>fr.soleil.device</groupId>
    <artifactId>Aerotech-${aol}-${mode}</artifactId>
-  <version>1.9.1-SNAPSHOT</version>
+  <version>1.9.1</version>
    <packaging>nar</packaging>
    <name>Aerotech</name>
    <description>Aerotech device</description>
