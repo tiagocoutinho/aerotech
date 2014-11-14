@@ -4,8 +4,6 @@
 //-  Aerotech allows an unique user socket to share between multiple Axes 
 //- so create a singleton to manage it
 //-------------------------------------------------------------------
-
-
 #ifndef __SOCKETPOOL_H__
 #define __SOCKETPOOL_H__
 
@@ -30,7 +28,8 @@ namespace Aerotech_ns
     "SW_NOT_CONFIGURED",
     "SW_ALLOC_ERROR",
     "SW_CONFIGURED",
-    "SW_CONFIGURATION_ERROR" };
+    "SW_CONFIGURATION_ERROR"
+  };
 
 class SocketPool
 {

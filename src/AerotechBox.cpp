@@ -36,7 +36,7 @@ static const char *RcsId = "$Id: AerotechBox.cpp,v 1.3 2012/03/05 08:43:07 jean_
 // - initial import #21894
 //
 //
-// copyleft :    Synchrotron SOLEIL 
+// copyleft :    Synchrotron SOLEIL  
 //               L'Orme des merisiers - Saint Aubin
 //               BP48 - 91192 Gif sur Yvette
 //               FRANCE
@@ -139,19 +139,18 @@ void AerotechBox::init_device()
 
 	// Initialise variables to default values
 	//--------------------------------------------
-	this->m_status_str = "initializing device...";
-	this->m_properties_missing = false;
-	this->m_init_device_done = false;
-
-  //- create SocketPool singleton
+	m_status_str = "initializing device...";
+	m_properties_missing = false;
+	m_init_device_done = false;
 
 	CREATE_SCALAR_ATTRIBUTE(attr_oKCommandCounter_read, long (0));
 	CREATE_SCALAR_ATTRIBUTE(attr_badCommandCounter_read, long (0));
 
 	get_device_property();
-  if (m_properties_missing)
+  if (m_properties_missing) //- Status is updated in get_device_property()
     return;
 
+  //- create SocketPool singleton
   Aerotech_ns::SocketPool::Config conf;
   conf.ip_address = iPAddress;
   conf.port = port;
@@ -162,20 +161,27 @@ void AerotechBox::init_device()
   try
   {
     Aerotech_ns::SocketPool::instance ();
-    Aerotech_ns::SocketPool::instance ()->initialize ();
-    Aerotech_ns::SocketPool::instance ()->configure (conf);
+    Aerotech_ns::SocketPool::instance ()->initialize();
+    Aerotech_ns::SocketPool::instance ()->configure(conf);
   }
   catch (yat::Exception & ye)
   {
-    ERROR_STREAM << "initialization failed - YAT exception caught" << std::endl;
-    this->m_status_str = "device initialization failed : \n"
-                       + std::string(ye.errors[0].desc);
+    ERROR_STREAM << "AerotechBox: Initialization failed - YAT Error: " << std::string(ye.errors[0].desc) << std::endl;
+    m_status_str = "Device initialization failed - YAT Error: \n" 
+                           + std::string(ye.errors[0].desc);
+    return;
+  }
+  catch (Tango::DevFailed &e)
+  {
+    ERROR_STREAM << "AerotechBox: Initialization failed - Tango Error: " << e << std::endl;
+    m_status_str = "Device initialization failed - Tango Error: \n"
+                       + std::string(e.errors[0].desc);
     return;
   }
   catch (...)
   {
-    ERROR_STREAM << "initialization failed [unknown exception caught]" << std::endl;
-    this->m_status_str = "device initialization failed [(...) exception caught]";
+    ERROR_STREAM << "AerotechBox: Initialization failed - Unknown Error" << std::endl;
+    m_status_str = "Device initialization failed - Unknown Error";
     return;
   }
   try
@@ -186,25 +192,35 @@ void AerotechBox::init_device()
       controller = new Aerotech_ns::cEnsemble (const_cast <char *> (mainAxisName.c_str ()));
     else
     {
-      ERROR_STREAM << "initialization failed [unknown Controller type]" << std::endl;
-      this->m_status_str = "device initialization failed [unknown Controller type]";
+      ERROR_STREAM << "AerotechBox: Initialization failed [unknown Controller type: " << controllerType << " ]" << std::endl;
+      m_status_str = "Device initialization failed " + controllerType + " controller type not supported";
       return;
     }
   }
+  catch (yat::Exception & ye)
+  {
+    ERROR_STREAM << "AerotechBox: Initialization failed - YAT Error: " << std::string(ye.errors[0].desc) << std::endl;
+    m_status_str = "Device initialization failed - YAT Error: \n"
+                       + std::string(ye.errors[0].desc);
+    return;
+  }
   catch (Tango::DevFailed &e)
   {
-    ERROR_STREAM << "initialization failed - DevFailed exception caught" << e << std::endl;
-    this->m_status_str = "device initialization failed caught Tango::DevFailed : \n"
+    ERROR_STREAM << "AerotechBox: Initialization failed - Tango Error: " << e << std::endl;
+    m_status_str = "Device initialization failed - Tango Error: \n"
                        + std::string(e.errors[0].desc);
     return;
   }
   catch (...)
   {
-    ERROR_STREAM << "initialization failed [unknown exception caught]" << std::endl;
-    this->m_status_str = "device initialization failed [(...) exception caught]";
+     ERROR_STREAM << "AerotechBox: Initialization failed - Unknown Error" << std::endl;
+    m_status_str = "Device initialization failed - Unknown Error";
     return;
   }
-  this->m_init_device_done = true;
+  
+  m_init_device_done = true;
+  
+  dev_state();
 }
 
 
@@ -307,8 +323,8 @@ void AerotechBox::get_device_property()
   if (dev_prop[0].is_empty()==true || iPAddress.find ("must be defined") != std::string::npos)
 	{
     ERROR_STREAM << "AerotechBox::get_device_property IPAddress not defined" << std::endl;
-    this->m_status_str = "AerotechBox::get_device_property IPAddress not defined \n[set IP Address and restart device]";
-		this->m_properties_missing = true;
+    m_status_str = "AerotechBox::get_device_property IPAddress not defined \n[set IP Address and restart device]";
+		m_properties_missing = true;
 		Tango::DbDatum	property("IPAddress");
 		property	<<	iPAddress;
 		data_put.push_back(property);
@@ -332,8 +348,8 @@ void AerotechBox::get_device_property()
       (controllerType.find ("ENSEMBLE") == std::string::npos))
 	{
     ERROR_STREAM << "AerotechBox::get_device_property ControllerType not defined" << std::endl;
-    this->m_status_str = "AerotechBox::get_device_property ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
-		this->m_properties_missing = true;
+    m_status_str = "AerotechBox::get_device_property ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
+		m_properties_missing = true;
 		Tango::DbDatum	property("ControllerType");
 		property	<<	controllerType;
 		data_put.push_back(property);
@@ -341,8 +357,8 @@ void AerotechBox::get_device_property()
   if (dev_prop[4].is_empty()==true || mainAxisName.find ("must be defined") != std::string::npos)
 	{
     ERROR_STREAM << "AerotechBox::get_device_property MainAxisName not defined" << std::endl;
-    this->m_status_str = "AerotechBox::get_device_property MainAxisName not defined \n[set main axis name and restart device]";
-		this->m_properties_missing = true;
+    m_status_str = "AerotechBox::get_device_property MainAxisName not defined \n[set main axis name and restart device]";
+		m_properties_missing = true;
 		Tango::DbDatum	property("MainAxisName");
 		property	<<	mainAxisName;
 		data_put.push_back(property);

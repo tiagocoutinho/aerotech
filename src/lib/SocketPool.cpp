@@ -79,7 +79,6 @@ SocketPool::~SocketPool ()
 //----------------------------------------
 // SocketPool Singleton Initialization  
 //----------------------------------------
-
 void SocketPool::initialize (void)
 {
   this->internal_state = SW_NOT_INITIALIZED;
@@ -111,7 +110,6 @@ void SocketPool::release (void)
 //----------------------------------------
 void SocketPool::configure (const Config & c)
 {
-
   std::cout << "*********************** SocketPool::configure entering!********************" << std::endl;
 
   if (this->internal_state != SW_INITIALIZED)

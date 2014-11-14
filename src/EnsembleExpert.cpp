@@ -66,6 +66,8 @@ static const char *RcsId = "$Id: EnsembleExpert.cpp,v 1.2 2012/03/02 15:45:13 je
 #include <yat4tango/ExceptionHelper.h>
 #include "lib/cEnsemble.h"
 #include <iomanip>
+
+
 namespace EnsembleExpert_ns
 {
 
@@ -115,9 +117,9 @@ void EnsembleExpert::delete_device()
   DELETE_SCALAR_ATTRIBUTE(attr_homeOffset_read);
   DELETE_SCALAR_ATTRIBUTE(attr_statusRaw_read);
   DELETE_SCALAR_ATTRIBUTE(attr_errorRaw_read);
+  
   if (axis)
     delete axis;
-  axis = 0;
 }
 
 //+----------------------------------------------------------------------------
@@ -135,7 +137,7 @@ void EnsembleExpert::init_device()
 	//--------------------------------------------
   m_properties_missing = false;
   m_init_device_done = false;
-  this->axis = 0;
+  axis = 0;
   
   CREATE_SCALAR_ATTRIBUTE(attr_positionError_read);
   CREATE_SCALAR_ATTRIBUTE(attr_currentVelocity_read);
@@ -148,9 +150,8 @@ void EnsembleExpert::init_device()
   CREATE_SCALAR_ATTRIBUTE(attr_errorRaw_read);
 
   get_device_property();
-  if (m_properties_missing)
+  if (m_properties_missing) //- Status is updated in get_device_property()
     return;
-
 
   try
   {
@@ -158,19 +159,21 @@ void EnsembleExpert::init_device()
   }
   catch (Tango::DevFailed &e)
   {
-    ERROR_STREAM << "initialization failed - DevFailed exception caught" << e << std::endl;
-    this->m_status_str = "device initialization failed caught Tango::DevFailed : \n"
+    ERROR_STREAM << "EnsembleExpert: Initialization failed - Tango Error: " << e << std::endl;
+    m_status_str = "Device initialization failed - Tango Error : \n"
                        + std::string(e.errors[0].desc);
     return;
   }
   catch (...)
   {
-    ERROR_STREAM << "initialization failed [unknown exception caught]" << std::endl;
-    this->m_status_str = "device initialization failed [(...) exception caught]";
+    ERROR_STREAM << "EnsembleExpert: Initialization failed - Unknown Error: " << std::endl;
+    m_status_str = "Device initialization failed - Unknown Error";
     return;
   }
 
-	this->m_init_device_done = true;
+	m_init_device_done = true;
+
+  dev_state();
 }
 
 
@@ -233,7 +236,7 @@ void EnsembleExpert::get_device_property()
 	{
     m_properties_missing = true;
     INFO_STREAM << "EnsembleExpert::get_device_property AxisId not defined [fix and restart device]" << std::endl;
-    this->m_status_str = "AxisId not defined [fix and restart device]";
+    m_status_str = "AxisId not defined [fix and restart device]";
 		Tango::DbDatum	property("AxisId");
 		property	<<	axisId;
 		data_put.push_back(property);
@@ -241,8 +244,8 @@ void EnsembleExpert::get_device_property()
   if ((dev_prop[1].is_empty()==true) || (controllerType.find ("ENSEMBLE") == std::string::npos))
 	{
     ERROR_STREAM << "EnsembleExpert::get_device_property ControllerType not defined" << std::endl;
-    this->m_status_str = "ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
-		this->m_properties_missing = true;
+    m_status_str = "ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
+		m_properties_missing = true;
 		Tango::DbDatum	property("ControllerType");
 		property	<<	controllerType;
 		data_put.push_back(property);

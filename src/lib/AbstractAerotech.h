@@ -5,6 +5,7 @@
 //-------------------------------------------------------------------
 #ifndef __ABSTRACT_AEROTECH_H__
 #define __ABSTRACT_AEROTECH_H__
+
 #include <string>
 #include <yat/time/Timer.h>
 #include <yat/threading/Mutex.h>
@@ -87,7 +88,12 @@ namespace Aerotech_ns
     *  to verify that the axis is really homed, poll the status with "axis_is_homed" or "axis_is_moving"
     **/
     bool axis_home ();
-
+    
+    /**
+    *
+    **/
+    bool set_wait_mode (short wait_mode);
+    
     /**
     *  The functions "get_axis_software_limit_low"  and
     *  "get_axis_software_limit_high" return the software limits

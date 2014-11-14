@@ -84,8 +84,6 @@ static const char *RcsId = "$Id: AerotechAxis.cpp,v 1.4 2012/03/05 08:43:07 jean
 #include <yat/Portability.h>
 #include "lib/cEnsemble.h"
 #include "lib/cA3200.h"
-//-#include "lib/SocketPool.h"
-
 
 
 namespace AerotechAxis_ns
@@ -135,7 +133,6 @@ void AerotechAxis::delete_device()
 
   if (axis)
     delete axis;
-  axis = 0;
 
 }
 
@@ -152,11 +149,11 @@ void AerotechAxis::init_device()
 
 	// Initialise variables to default values
 	//--------------------------------------------
-	this->m_status_str = "initializing device...";
-	this->m_properties_missing = false;
-	this->m_init_device_done = false;
-  this->axis_name = 0;
-  this->axis = 0;
+	m_status_str = "initializing device...";
+	m_properties_missing = false;
+	m_init_device_done = false;
+  axis_name = 0;
+  axis = 0;
 
   CREATE_SCALAR_ATTRIBUTE(attr_position_read);
   CREATE_SCALAR_ATTRIBUTE(attr_offset_read);
@@ -164,37 +161,51 @@ void AerotechAxis::init_device()
   CREATE_SCALAR_ATTRIBUTE(attr_isBrakeOn_read);
 
   get_device_property();
-  if (m_properties_missing)
+  if (m_properties_missing) //- Status is updated in get_device_property()
     return;
 
   try
   {
     if (controllerType == "A3200")
+    {
       axis = new Aerotech_ns::cA3200 (const_cast <char *> (axisId.c_str ()));
+    }
     else if (controllerType == "ENSEMBLE")
+    {
       axis = new Aerotech_ns::cEnsemble (const_cast <char *> (axisId.c_str ()));
+      axis->set_wait_mode(0); //- nowait (not working...)
+    }
     else
     {
-      ERROR_STREAM << "initialization failed [unknown Controller type]" << std::endl;
-      this->m_status_str = "device initialization failed [unknown Controller type]";
+      ERROR_STREAM << "AerotechAxis: Initialization failed [unknown Controller type: " << controllerType << " ]" << std::endl;
+      m_status_str = "Device initialization failed " + controllerType + " controller type not supported";
       return;
     }
   }
+  catch (yat::Exception & ye)
+  {
+    ERROR_STREAM << "AerotechAxis: Initialization failed - YAT Error: " << std::string(ye.errors[0].desc) << std::endl;
+    m_status_str = "Device initialization failed - YAT Error: \n" 
+                           + std::string(ye.errors[0].desc);
+    return;
+  }
   catch (Tango::DevFailed &e)
   {
-    ERROR_STREAM << "initialization failed - DevFailed exception caught" << e << std::endl;
-    this->m_status_str = "device initialization failed caught Tango::DevFailed : \n"
+    ERROR_STREAM << "AerotechAxis: Initialization failed - Tango Error: " << e << std::endl;
+    m_status_str = "Device initialization failed - Tango Error: \n"
                        + std::string(e.errors[0].desc);
     return;
   }
   catch (...)
   {
-    ERROR_STREAM << "initialization failed [unknown exception caught]" << std::endl;
-    this->m_status_str = "device initialization failed [(...) exception caught]";
+    ERROR_STREAM << "AerotechAxis: Initialization failed - Unknown Error" << std::endl;
+    m_status_str = "Device initialization failed - Unknown Error";
     return;
   }
 
-	this->m_init_device_done = true;
+	m_init_device_done = true;
+ 
+  dev_state();
 }
 
 
@@ -257,8 +268,8 @@ void AerotechAxis::get_device_property()
   if (dev_prop[0].is_empty()==true || axisId.find ("must be defined") != std::string::npos)
 	{
     m_properties_missing = true;
-    INFO_STREAM << "AerotechAxis::get_device_property AxisId not defined [fix and restart device]" << std::endl;
-    this->m_status_str = "AxisId not defined [fix and restart device]";
+    ERROR_STREAM << "AerotechAxis::get_device_property AxisId not defined [fix and restart device]" << std::endl;
+    m_status_str = "AxisId is not defined [fix and restart device]";
 		Tango::DbDatum	property("AxisId");
 		property	<<	axisId;
 		data_put.push_back(property);
@@ -267,9 +278,9 @@ void AerotechAxis::get_device_property()
       (controllerType.find ("A3200") == std::string::npos) &&
       (controllerType.find ("ENSEMBLE") == std::string::npos))
 	{
+    m_properties_missing = true;
     ERROR_STREAM << "AerotechBox::get_device_property ControllerType not defined" << std::endl;
-    this->m_status_str = "ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
-		this->m_properties_missing = true;
+    m_status_str = "ControllerType is not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
 		Tango::DbDatum	property("ControllerType");
 		property	<<	controllerType;
 		data_put.push_back(property);
@@ -311,10 +322,10 @@ void AerotechAxis::read_attr_hardware(vector<long> &attr_list)
 void AerotechAxis::read_relativeMove(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "AerotechAxis::read_relativeMove(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
+  if (! is_init() )
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      "device not properly initialized [check properties, communication lost]",
-                     "AerotechAxis::write_relativeMove");
+                     "AerotechAxis::read_relativeMove");
 }
 
 //+----------------------------------------------------------------------------
@@ -327,32 +338,32 @@ void AerotechAxis::read_relativeMove(Tango::Attribute &attr)
 void AerotechAxis::write_relativeMove(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "AerotechAxis::write_relativeMove(Tango::WAttribute &attr) entering... "<< endl;
-  if (! is_init ())
+  if (! is_init() )
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      "device not properly initialized [check properties, communication lost]",
                      "AerotechAxis::write_relativeMove");
 
   //- already moving?
-  if (axis->axis_is_moving ()         ||
-      axis->axis_is_accel_or_decel () ||
-      axis->axis_is_homing ())
+  if (axis->axis_is_moving()         ||
+      axis->axis_is_accel_or_decel() ||
+      axis->axis_is_homing())
   {
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      "axis is already moving [wait for movement end]",
                      "AerotechAxis::write_relativeMove");
   }
   int err;
-  axis->get_axis_fault_status (err);
+  axis->get_axis_fault_status(err);
   if (err != 0)
   {
     char err_text [512];
-    axis->error_to_string (err, err_text);
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+    axis->error_to_string(err, err_text);
+    THROW_DEVFAILED("OPERATION_NOT_ALLOWED",
                      err_text,
-                     "AerotechAxis::write_relative_move");
+                     "AerotechAxis::write_relativeMove");
   }
-  attr.get_write_value (attr_relativeMove_write);
-  axis->axis_move_rel ( attr_relativeMove_write);
+  attr.get_write_value(attr_relativeMove_write);
+  axis->axis_move_rel( attr_relativeMove_write);
 
 }
 
@@ -385,10 +396,9 @@ void AerotechAxis::read_position(Tango::Attribute &attr)
 	DEBUG_STREAM << "AerotechAxis::read_position(Tango::Attribute &attr) entering... "<< endl;
   if (! is_init ())
     return;
-  double tmp = yat::IEEE_NAN;
+  
   if (axis->get_axis_position_user (*attr_position_read))
     attr.set_value (attr_position_read);
-  return;
 }
 
 //+----------------------------------------------------------------------------
@@ -426,8 +436,8 @@ void AerotechAxis::write_position(Tango::WAttribute &attr)
                      "AerotechAxis::write_position");
   }
 
-  attr.get_write_value (attr_position_write);
-  axis->axis_move_abs_user ( attr_position_write);
+  attr.get_write_value(attr_position_write);
+  axis->axis_move_abs_user(attr_position_write);
 
 }
 
@@ -503,16 +513,18 @@ void AerotechAxis::write_velocity(Tango::WAttribute &attr)
   if (err != 0)
   {
     char err_text [256];
-    axis->error_to_string (err, err_text);
+    axis->error_to_string(err, err_text);
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      err_text,
-                     "AerotechAxis::write_position");
+                     "AerotechAxis::write_velocity");
   }
-  attr.get_write_value (attr_velocity_write);
-  axis->set_axis_default_speed (attr_velocity_write);
+  attr.get_write_value(attr_velocity_write);
+  if (!axis->set_axis_default_speed(attr_velocity_write))
+     THROW_DEVFAILED ("COMMAND_FAILED",
+                     "command failed [controller refused command]",
+                     "AerotechAxis::write_velocity");
+
 }
-
-
 
 //+------------------------------------------------------------------
 /**
@@ -532,7 +544,7 @@ void AerotechAxis::stop()
   if (! is_init ())
     THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
                      "device not properly initialized [check properties, communication lost]",
-                     "AerotechAxis::initialize_reference_position");
+                     "AerotechAxis::stop");
   if (!axis->axis_abort ())
    THROW_DEVFAILED ("COMMAND_FAILED",
                     "command failed [controller refused command]",
@@ -831,7 +843,6 @@ bool AerotechAxis::is_init()
 }
 
 
-
 //+------------------------------------------------------------------
 /**
  *	method:	AerotechAxis::enable
@@ -856,7 +867,6 @@ void AerotechAxis::enable()
    THROW_DEVFAILED ("COMMAND_FAILED",
                     "command failed [controller refused command]",
                     "AerotechAxis::enable");
-
 }
 
 //+------------------------------------------------------------------
@@ -886,62 +896,5 @@ void AerotechAxis::disable()
 }
 
 
-
-
-//+------------------------------------------------------------------
-/**
- *	method:	AerotechAxis::on
- *
- *	description:	method to execute "On"
- *	Enable power driver
- *	same as Enable cmd
- *
- *
- */
-//+------------------------------------------------------------------
-void AerotechAxis::on()
-{
-	DEBUG_STREAM << "AerotechAxis::on(): entering... !" << endl;
-
-	//	Add your own code to control device here
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "AerotechAxis::on");
-
-  if (!axis->axis_enable ())
-   THROW_DEVFAILED ("COMMAND_FAILED",
-                    "command failed [controller refused command]",
-                    "AerotechAxis::on");
-
-}
-
-//+------------------------------------------------------------------
-/**
- *	method:	AerotechAxis::off
- *
- *	description:	method to execute "Off"
- *	Disable power driver
- *	same as Disable cmd
- *
- *
- */
-//+------------------------------------------------------------------
-void AerotechAxis::off()
-{
-	DEBUG_STREAM << "AerotechAxis::off(): entering... !" << endl;
-
-	//	Add your own code to control device here
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "AerotechAxis::off");
-
-  if (!axis->axis_disable ())
-   THROW_DEVFAILED ("COMMAND_FAILED",
-                    "command failed [controller refused command]",
-                    "AerotechAxis::off");
-
-}
 
 }	//	namespace

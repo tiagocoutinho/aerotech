@@ -76,7 +76,7 @@ bool AbstractAerotech::send_string (char *string_to_send)  //send string to cont
 bool AbstractAerotech::send_receive_and_test (char *to_send, char *received)
 {
   bool ok = send_and_receive (to_send, received);
-//- std::cout << "AbstractAerotech::send_receive_and_test cmd <" << to_send << "> response <" << received << ">" << std::endl;
+std::cout << "AbstractAerotech::send_receive_and_test cmd <" << to_send << "> response <" << received << ">" << std::endl;
   if (!ok)
   {
     //- std::cout << "AbstractAerotech::send_receive_and_test  NOT OK!!!" << std::endl;
@@ -122,11 +122,19 @@ bool AbstractAerotech::send_and_receive (std::string cmd, std::string & resp)
 {
   try
   {//- CRITICAL SECTION
-    yat::AutoMutex <yat::Mutex> guard (this->m_lock);
-    SOCK_POOL->write_read (cmd, resp);
+    yat::AutoMutex <yat::Mutex> guard(this->m_lock);
+    SOCK_POOL->write_read(cmd, resp);
     return true;
   } //- END CRITICAL SECTION
   catch (yat::SocketException &ye)
+  {
+    std::cerr << "AbstractAerotech::send_receive Axis <" 
+              << this->axis_name << "> "
+              << "yat SocketException caught desc <" << ye.errors[0].desc 
+              << "> trying to send cmd <" << cmd << ">" << std::endl;
+    return false;
+  }
+  catch (yat::Exception &ye)
   {
     std::cerr << "AbstractAerotech::send_receive Axis <" 
               << this->axis_name << "> "
@@ -134,6 +142,14 @@ bool AbstractAerotech::send_and_receive (std::string cmd, std::string & resp)
               << "> trying to send cmd <" << cmd << ">" << std::endl;
     return false;
   }
+  /*catch (Tango::DevFailed &e)
+  {
+    std::cerr << "AbstractAerotech::send_receive Axis <" 
+              << this->axis_name << "> "
+              << "Tango Exception caught desc <" << e.errors[0].desc 
+              << "> trying to send cmd <" << cmd << ">" << std::endl;
+    return false;
+  }*/
   catch (...)
   {
     std::cerr << "AbstractAerotech::send_receive Axis <" 
@@ -209,6 +225,19 @@ bool AbstractAerotech::axis_fault_ack (void)
 {
   char s[SIZE_BUFFER];
   sprintf (s,"FAULTACK %s \n", this->axis_name.c_str ());
+  return send_string (s);
+}
+
+//-----------------------------------------------------------
+//- AbstractAerotech::set_wait_mode
+//-----------------------------------------------------------
+bool AbstractAerotech::set_wait_mode (short wait_mode)
+{
+  if (! is_ready_to_accept_cmd  ())
+    return false;
+  char s[SIZE_BUFFER];
+  //- 0: no wait | 1: Wait move | 2: wait move + in pos
+  sprintf (s, "WAIT MODE %i\n", wait_mode);
   return send_string (s);
 }
 

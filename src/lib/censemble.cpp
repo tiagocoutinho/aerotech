@@ -16,7 +16,7 @@ namespace Aerotech_ns
 AbstractAerotech (axis_name)
 {
   m_controller_type = ENSEMBLE_TYPE;
-  //std::cout << "cEnsemble::cEnsemble <-" << std::endl;
+  std::cout << "cEnsemble::cEnsemble <-" << std::endl;
 }
 
 //-----------------------------------------------------------
@@ -24,7 +24,7 @@ AbstractAerotech (axis_name)
 //-----------------------------------------------------------
 cEnsemble::~cEnsemble ()
 {
-  //std::cout << "cEnsemble::~cEnsemble <-" << std::endl;
+  std::cout << "cEnsemble::~cEnsemble <-" << std::endl;
 
 }
 
@@ -38,7 +38,7 @@ bool cEnsemble::get_param (char *param, char *string_received)
   //- ::memset (s, 0, SIZE_BUFFER);
   std::stringstream s;
   s << "GETPARM(" << this->axis_name << "," << param << ")\n";
-//- std::cout << "cEnsemble::get_param axis_name <" << this->axis_name << "> param <" << param << "> cmd <" << s.str () << ">" << std::endl;
+std::cout << "cEnsemble::get_param axis_name <" << this->axis_name << "> param <" << param << "> cmd <" << s.str () << ">" << std::endl;
   // sprintf (s, "GETPARM(%s,%s)\n", this->axis_name, param);
   bool ok = send_receive_and_test (const_cast <char*> (s.str ().c_str ()), string_received);
 //- std::cout << "cEnsemble::get_param axis_name <" << this->axis_name << "> param <" << param << "> cmd <" << s.str () << ">" << "> resp <" << string_received << ">" << std::endl;
@@ -423,14 +423,15 @@ bool cEnsemble::set_axis_default_speed (double speed)
   char s[SIZE_BUFFER];
   char sformat[SIZE_BUFFER];
   sprintf (s, "%lf", speed);
-  bool ok = set_param(const_cast <char*> ("DefaultSpeed"), s);
-  if (ok)
-  {
+  bool ok = set_param(const_cast <char*> ("DefaultSpeed"), s); //- Default speed is set when the controller reboot
+  //- Test FL
+  //if (ok)
+  //{
     // send a "MOVEINC Axis F speed" - a relative nul displacement to set the velocity
     sprintf (sformat, "MOVEINC %%s F %%.%df\n", NB_DIGITS);
     sprintf (s, sformat, this->axis_name.c_str (), speed);
     ok = send_string (s);
-  }
+  //}
   return ok;
 }
 
@@ -445,12 +446,12 @@ bool cEnsemble::set_axis_ramp_rate (double ramp_rate)
   char sformat[SIZE_BUFFER];
   sprintf(s,"%lf",ramp_rate);
   bool ok = set_param (const_cast <char*> ("Defaultramprate"), s);
-  if (ok)
-  {
+  //if (ok)
+  //{
     sprintf(sformat, "RAMP RATE %%s  %%.%df\n", NB_DIGITS);
     sprintf(s, sformat, this->axis_name.c_str (), ramp_rate);
     ok = send_string (s);
-  }
+  //}
   return ok;
 }
 
