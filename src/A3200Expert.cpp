@@ -58,7 +58,7 @@ static const char *RcsId = "$Id:  $";
 #include <tango.h>
 #include <A3200Expert.h>
 #include <A3200ExpertClass.h>
-#include <helpers/PogoHelper.h>
+#include <PogoHelper.h>
 #include <yat4tango/ExceptionHelper.h>
 #include "lib/cA3200.h"
 

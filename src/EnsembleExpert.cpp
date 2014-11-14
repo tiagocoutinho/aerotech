@@ -62,7 +62,7 @@ static const char *RcsId = "$Id: EnsembleExpert.cpp,v 1.2 2012/03/02 15:45:13 je
 #include <tango.h>
 #include <EnsembleExpert.h>
 #include <EnsembleExpertClass.h>
-#include <helpers/PogoHelper.h>
+#include <PogoHelper.h>
 #include <yat4tango/ExceptionHelper.h>
 #include "lib/cEnsemble.h"
 #include <iomanip>

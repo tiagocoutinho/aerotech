@@ -79,7 +79,7 @@ static const char *RcsId = "$Id: AerotechAxis.cpp,v 1.4 2012/03/05 08:43:07 jean
 #include <tango.h>
 #include <AerotechAxis.h>
 #include <AerotechAxisClass.h>
-#include <helpers/PogoHelper.h>
+#include <PogoHelper.h>
 #include <yat4tango/ExceptionHelper.h>
 #include <yat/Portability.h>
 #include "lib/cEnsemble.h"
@@ -397,7 +397,8 @@ void AerotechAxis::read_position(Tango::Attribute &attr)
   if (! is_init ())
     return;
   
-  if (axis->get_axis_position_user (*attr_position_read))
+  //if (axis->get_axis_position_user (*attr_position_read))
+    axis->get_axis_position_user (*attr_position_read);
     attr.set_value (attr_position_read);
 }
 
@@ -895,6 +896,61 @@ void AerotechAxis::disable()
                     "AerotechAxis::disable");
 }
 
+//+------------------------------------------------------------------
+/**
+ *	method:	AerotechAxis::on
+ *
+ *	description:	method to execute "On"
+ *	Enable power driver
+ *	same as Enable cmd
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void AerotechAxis::on()
+{
+	DEBUG_STREAM << "AerotechAxis::on(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (! is_init ())
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "AerotechAxis::on");
+
+  if (!axis->axis_enable ())
+   THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "AerotechAxis::on");
+
+}
+
+//+------------------------------------------------------------------
+/**
+ *	method:	AerotechAxis::off
+ *
+ *	description:	method to execute "Off"
+ *	Disable power driver
+ *	same as Disable cmd
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void AerotechAxis::off()
+{
+	DEBUG_STREAM << "AerotechAxis::off(): entering... !" << endl;
+
+	//	Add your own code to control device here
+  if (! is_init ())
+    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+                     "device not properly initialized [check properties, communication lost]",
+                     "AerotechAxis::off");
+
+  if (!axis->axis_disable ())
+   THROW_DEVFAILED ("COMMAND_FAILED",
+                    "command failed [controller refused command]",
+                    "AerotechAxis::off");
+
+}
 
 
 }	//	namespace

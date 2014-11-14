@@ -72,7 +72,7 @@ static const char *RcsId = "$Id: AerotechBox.cpp,v 1.3 2012/03/05 08:43:07 jean_
 #include <tango.h>
 #include <AerotechBox.h>
 #include <AerotechBoxClass.h>
-#include <helpers/PogoHelper.h>
+#include <PogoHelper.h>
 #include <yat4tango/ExceptionHelper.h>
 #include "lib/cEnsemble.h"
 #include "lib/cA3200.h"
