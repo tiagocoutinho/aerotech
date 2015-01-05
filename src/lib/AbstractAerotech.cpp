@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 namespace Aerotech_ns
 {
 
@@ -142,14 +141,6 @@ bool AbstractAerotech::send_and_receive (std::string cmd, std::string & resp)
               << "> trying to send cmd <" << cmd << ">" << std::endl;
     return false;
   }
-  /*catch (Tango::DevFailed &e)
-  {
-    std::cerr << "AbstractAerotech::send_receive Axis <" 
-              << this->axis_name << "> "
-              << "Tango Exception caught desc <" << e.errors[0].desc 
-              << "> trying to send cmd <" << cmd << ">" << std::endl;
-    return false;
-  }*/
   catch (...)
   {
     std::cerr << "AbstractAerotech::send_receive Axis <" 

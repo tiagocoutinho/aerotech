@@ -7,7 +7,6 @@
 #include <iostream>
 
 #include "SocketPool.h"
-#include <yat4tango/ExceptionHelper.h>
 
 namespace Aerotech_ns
 {
@@ -88,7 +87,7 @@ void SocketPool::initialize (void)
   if (!singleton)
   {
     this->internal_state = SW_ALLOC_ERROR;
-    THROW_DEVFAILED ("OUT_OF_MEMORY",
+    THROW_YAT_ERROR ("OUT_OF_MEMORY",
                      "SocketPool Singleton creation failed",
                      "SocketPool::initialize ()");
   }
@@ -113,8 +112,8 @@ void SocketPool::configure (const Config & c)
   std::cout << "*********************** SocketPool::configure entering!********************" << std::endl;
 
   if (this->internal_state != SW_INITIALIZED)
-    THROW_DEVFAILED ("SOFTWARE ERROR",
-                     "SocketPool Singleton creation failed",
+    THROW_YAT_ERROR ("INITIALIZATION_ERROR",
+                     "SocketPool Singleton was not properly created",
                      "SocketPool::configure ()");
 
   sock = 0;
@@ -143,9 +142,9 @@ void SocketPool::configure (const Config & c)
     {
       yat::AutoMutex <yat::Mutex> guard (this->status_lock);
       status_str = "Sockets Initialization Error caught SocketException <" + e.errors[0].desc + "> [check properties, Kill/Restart Dserver]\n";
-      THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                       "Socket creation failed",
-                       "SocketPool::initialize()");
+      THROW_YAT_ERROR (	"INITIALIZATION_ERROR",
+						"Socket initialization failed: " + e.errors[0].desc,
+						"SocketPool::initialize()");
     }
   }
   catch (...)
@@ -153,10 +152,10 @@ void SocketPool::configure (const Config & c)
     this->internal_state = SW_INITIALIZATION_ERROR;
     {
       yat::AutoMutex <yat::Mutex> guard (this->status_lock);
-      status_str = "Sockets Initialization Error caught (...) [check properties, Kill/Restart Dserver]\n";
-      THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                       "Socket creation failed",
-                       "SocketPool::initialize()");
+      status_str = "Sockets Initialization Error caught Unknown Error [check properties, Kill/Restart Dserver]\n";
+      THROW_YAT_ERROR (	"INITIALIZATION_ERROR",
+						"Socket creation failed: Unknown Error",
+						"SocketPool::initialize()");
     }
   }
   this->internal_state = SW_CONFIGURED;
@@ -182,14 +181,14 @@ void SocketPool::write_read(std::string cmd, std::string & resp)
   catch (yat::SocketException &e)
   {
     com_error_counter++;
-    THROW_YAT_TO_TANGO_EXCEPTION (e);
+    throw;
 
   }
   catch (...)
   {
     com_error_counter++;
-    THROW_DEVFAILED ("UNKNOWN_ERROR",
-                     "(...) exception trying to communicate with HW [check Aerotech, call programmer, love him better]",
+    THROW_YAT_ERROR ("UNKNOWN_ERROR",
+                     "Unknown Error trying to communicate with HW [check Aerotech, call programmer, love him better]",
                      "SocketPool::write_read()");
 
   }

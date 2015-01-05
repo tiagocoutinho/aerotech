@@ -9,6 +9,8 @@
 
 #include <yat/network/ClientSocket.h>
 #include <yat/threading/Mutex.h>
+#include <yat/Exception.h>
+
 #include <vector>
 #include <iostream>
 
