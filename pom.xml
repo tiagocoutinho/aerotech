@@ -27,15 +27,11 @@
        <groupId>fr.soleil.lib</groupId>
        <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
      </dependency>
-     <dependency>
-       <groupId>fr.soleil.lib</groupId>
-       <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-     </dependency>
    </dependencies>
    <scm>
-       <connection>${scm.connection.svn.tango-ds}/DeviceClasses/Motion/MotorControllers/Aerotech/trunk/</connection>
-       <developerConnection>${scm.connection.svn.tango-ds}/DeviceClasses/Motion/MotorControllers/Aerotech/trunk/</developerConnection>
-       <url>${scm.connection.svn.tango-ds}/DeviceClasses/Motion/MotorControllers/Aerotech/trunk/</url>
+       <connection>${scm.connection.svn.tango-ds}/DeviceClasses/Motion/MotorControllers/Aerotech/trunk</connection>
+       <developerConnection>${scm.connection.svn.tango-ds}/DeviceClasses/Motion/MotorControllers/Aerotech/trunk</developerConnection>
+       <url>${scm.connection.svn.tango-ds}/DeviceClasses/Motion/MotorControllers/Aerotech/trunk</url>
    </scm>
    <developers>
        <developer>
