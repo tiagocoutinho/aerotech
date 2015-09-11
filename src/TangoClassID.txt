@@ -1,8 +1,8 @@
 /**
  * Device Class Identification:
  * 
- * Class Name   :	Aerotech, A3200Expert, EnsembleExpert
- * Contact      :	jean.coquet@synchrotron-soleil.fr
+ * Class Name   :	Aerotech
+ * Contact      :	langlois@synchrotron-soleil.fr
  * Class Family :	Motion
  * Platform     :	All Platforms
  * Bus          :	Ethernet

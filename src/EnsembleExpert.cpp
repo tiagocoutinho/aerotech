@@ -82,19 +82,19 @@ namespace EnsembleExpert_ns
 //
 //-----------------------------------------------------------------------------
 EnsembleExpert::EnsembleExpert(Tango::DeviceClass *cl,string &s)
-:Tango::Device_4Impl(cl,s.c_str())
+	:Tango::Device_4Impl(cl,s.c_str())
 {
 	init_device();
 }
 
 EnsembleExpert::EnsembleExpert(Tango::DeviceClass *cl,const char *s)
-:Tango::Device_4Impl(cl,s)
+	:Tango::Device_4Impl(cl,s)
 {
 	init_device();
 }
 
 EnsembleExpert::EnsembleExpert(Tango::DeviceClass *cl,const char *s,const char *d)
-:Tango::Device_4Impl(cl,s,d)
+	:Tango::Device_4Impl(cl,s,d)
 {
 	init_device();
 }
@@ -108,18 +108,20 @@ EnsembleExpert::EnsembleExpert(Tango::DeviceClass *cl,const char *s,const char *
 void EnsembleExpert::delete_device()
 {
 	//	Delete device allocated objects
-  DELETE_SCALAR_ATTRIBUTE(attr_positionError_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_currentVelocity_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_lowLimit_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_highLimit_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_rampRate_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_homeVelocity_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_homeOffset_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_statusRaw_read);
-  DELETE_SCALAR_ATTRIBUTE(attr_errorRaw_read);
-  
-  if (axis)
-    delete axis;
+	DELETE_SCALAR_ATTRIBUTE(attr_positionError_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_velocityFeedback_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_velocityCommand_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_lowLimit_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_highLimit_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_rampRate_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_homeVelocity_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_homeOffset_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_statusRaw_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_errorRaw_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_calibrationActive_read);
+
+	if (axis)
+		delete axis;
 }
 
 //+----------------------------------------------------------------------------
@@ -135,45 +137,47 @@ void EnsembleExpert::init_device()
 
 	// Initialise variables to default values
 	//--------------------------------------------
-  m_properties_missing = false;
-  m_init_device_done = false;
-  axis = 0;
-  
-  CREATE_SCALAR_ATTRIBUTE(attr_positionError_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_currentVelocity_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_lowLimit_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_highLimit_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_rampRate_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_homeVelocity_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_homeOffset_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_statusRaw_read);
-  CREATE_SCALAR_ATTRIBUTE(attr_errorRaw_read);
+	m_properties_missing = false;
+	m_init_device_done = false;
+	axis = 0;
 
-  get_device_property();
-  if (m_properties_missing) //- Status is updated in get_device_property()
-    return;
+	CREATE_SCALAR_ATTRIBUTE(attr_positionError_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_velocityFeedback_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_velocityCommand_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_lowLimit_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_highLimit_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_rampRate_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_homeVelocity_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_homeOffset_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_statusRaw_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_errorRaw_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_calibrationActive_read);
 
-  try
-  {
-    axis = new Aerotech_ns::cEnsemble (const_cast <char *> (axisId.c_str ()));
-  }
-  catch (Tango::DevFailed &e)
-  {
-    ERROR_STREAM << "EnsembleExpert: Initialization failed - Tango Error: " << e << std::endl;
-    m_status_str = "Device initialization failed - Tango Error : \n"
-                       + std::string(e.errors[0].desc);
-    return;
-  }
-  catch (...)
-  {
-    ERROR_STREAM << "EnsembleExpert: Initialization failed - Unknown Error: " << std::endl;
-    m_status_str = "Device initialization failed - Unknown Error";
-    return;
-  }
+	get_device_property();
+	if (m_properties_missing) //- Status is updated in get_device_property()
+		return;
+
+	try
+	{
+		axis = new Aerotech_ns::cEnsemble (const_cast <char *> (axisId.c_str ()));
+	}
+	catch (Tango::DevFailed &e)
+	{
+		ERROR_STREAM << "EnsembleExpert: Initialization failed - Tango Error: " << e << std::endl;
+		m_status_str = "Device initialization failed - Tango Error : \n"
+			+ std::string(e.errors[0].desc);
+		return;
+	}
+	catch (...)
+	{
+		ERROR_STREAM << "EnsembleExpert: Initialization failed - Unknown Error: " << std::endl;
+		m_status_str = "Device initialization failed - Unknown Error";
+		return;
+	}
 
 	m_init_device_done = true;
 
-  dev_state();
+	dev_state();
 }
 
 
@@ -188,7 +192,8 @@ void EnsembleExpert::get_device_property()
 {
 	//	Initialize your default values here (if not done with  POGO).
 	//------------------------------------------------------------------
-  axisId = "must be defined";
+	axisId = "must be defined [set the Axis names as defined in the controller for this Axis]";
+	controllerType = "must be defined [set ControllerType to [A3200|ENSEMBLE]]";
 
 	//	Read device properties from database.(Automatic code generation)
 	//------------------------------------------------------------------
@@ -231,20 +236,20 @@ void EnsembleExpert::get_device_property()
 
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
-  Tango::DbData data_put;
-  if (dev_prop[0].is_empty()==true || axisId.find ("must be defined") != std::string::npos)
+	Tango::DbData data_put;
+	if (dev_prop[0].is_empty()==true || axisId.find ("must be defined") != std::string::npos)
 	{
-    m_properties_missing = true;
-    INFO_STREAM << "EnsembleExpert::get_device_property AxisId not defined [fix and restart device]" << std::endl;
-    m_status_str = "AxisId not defined [fix and restart device]";
+		m_properties_missing = true;
+		INFO_STREAM << "EnsembleExpert::get_device_property AxisId not defined [fix and restart device]" << std::endl;
+		m_status_str = "AxisId not defined [fix and restart device]";
 		Tango::DbDatum	property("AxisId");
 		property	<<	axisId;
 		data_put.push_back(property);
 	}
-  if ((dev_prop[1].is_empty()==true) || (controllerType.find ("ENSEMBLE") == std::string::npos))
+	if ((dev_prop[1].is_empty()==true) || (controllerType.find ("ENSEMBLE") == std::string::npos))
 	{
-    ERROR_STREAM << "EnsembleExpert::get_device_property ControllerType not defined" << std::endl;
-    m_status_str = "ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
+		ERROR_STREAM << "EnsembleExpert::get_device_property ControllerType not defined" << std::endl;
+		m_status_str = "ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
 		m_properties_missing = true;
 		Tango::DbDatum	property("ControllerType");
 		property	<<	controllerType;
@@ -262,7 +267,7 @@ void EnsembleExpert::get_device_property()
 //-----------------------------------------------------------------------------
 void EnsembleExpert::always_executed_hook()
 {
-	
+
 }
 //+----------------------------------------------------------------------------
 //
@@ -278,6 +283,61 @@ void EnsembleExpert::read_attr_hardware(vector<long> &attr_list)
 }
 //+----------------------------------------------------------------------------
 //
+// method : 		EnsembleExpert::read_velocityFeedback
+// 
+// description : 	Extract real attribute values for velocityFeedback acquisition result.
+//
+//-----------------------------------------------------------------------------
+void EnsembleExpert::read_velocityFeedback(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "EnsembleExpert::read_velocityFeedback(Tango::Attribute &attr) entering... "<< endl;
+    
+    if (! is_init ())
+		return;
+	if (axis->get_axis_velocity_feedback (*attr_velocityFeedback_read))
+		attr.set_value (attr_velocityFeedback_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_velocityFeedback could not read value on controller" << std::endl;
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		EnsembleExpert::read_velocityCommand
+// 
+// description : 	Extract real attribute values for velocityCommand acquisition result.
+//
+//-----------------------------------------------------------------------------
+void EnsembleExpert::read_velocityCommand(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "EnsembleExpert::read_velocityCommand(Tango::Attribute &attr) entering... "<< endl;
+    
+    if (! is_init ())
+		return;
+	if (axis->get_axis_velocity_feedback (*attr_velocityCommand_read))
+		attr.set_value (attr_velocityCommand_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_velocityCommand could not read value on controller" << std::endl;
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		EnsembleExpert::read_calibrationActive
+// 
+// description : 	Extract real attribute values for calibrationActive acquisition result.
+//
+//-----------------------------------------------------------------------------
+void EnsembleExpert::read_calibrationActive(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "EnsembleExpert::read_calibrationActive(Tango::Attribute &attr) entering... "<< endl;
+
+	if (! is_init ())
+		return;
+	*attr_calibrationActive_read = axis->axis_calibration_is_active();
+	attr.set_value (attr_calibrationActive_read);
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		EnsembleExpert::read_rampRate
 // 
 // description : 	Extract real attribute values for rampRate acquisition result.
@@ -286,12 +346,12 @@ void EnsembleExpert::read_attr_hardware(vector<long> &attr_list)
 void EnsembleExpert::read_rampRate(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_rampRate(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  if (axis->get_axis_ramp_rate (*attr_rampRate_read))
-    attr.set_value (attr_rampRate_read);
-  else
-    ERROR_STREAM << "EnsembleExpert::read_rampRate could not read value on controller" << std::endl;
+	if (! is_init ())
+		return;
+	if (axis->get_axis_ramp_rate (*attr_rampRate_read))
+		attr.set_value (attr_rampRate_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_rampRate could not read value on controller" << std::endl;
 }
 
 //+----------------------------------------------------------------------------
@@ -304,17 +364,17 @@ void EnsembleExpert::read_rampRate(Tango::Attribute &attr)
 void EnsembleExpert::write_rampRate(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::write_rampRate(Tango::WAttribute &attr) entering... "<< endl;
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "EnsembleAxis::write_rampRate");
+	if (! is_init ())
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"EnsembleAxis::write_rampRate");
 
 
-  attr.get_write_value (attr_rampRate_write);
-  if (!axis->axis_move_abs (attr_rampRate_write))
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "controller refused the command",
-                     "EnsembleAxis::write_rampRate");
+	attr.get_write_value (attr_rampRate_write);
+	if (!axis->set_axis_ramp_rate (attr_rampRate_write))
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"controller refused the command",
+						"EnsembleAxis::write_rampRate");
 }
 
 //+----------------------------------------------------------------------------
@@ -327,53 +387,12 @@ void EnsembleExpert::write_rampRate(Tango::WAttribute &attr)
 void EnsembleExpert::read_positionError(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_positionError(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  if (axis->get_axis_position_error (*attr_positionError_read))
-    attr.set_value (attr_positionError_read);
-  else
-    ERROR_STREAM << "EnsembleExpert::read_positionError could not read value on controller" << std::endl;
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		EnsembleExpert::read_currentVelocity
-// 
-// description : 	Extract real attribute values for currentVelocity acquisition result.
-//
-//-----------------------------------------------------------------------------
-void EnsembleExpert::read_currentVelocity(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "EnsembleExpert::read_currentVelocity(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  if (axis->get_axis_velocity (*attr_currentVelocity_read))
-    attr.set_value (attr_currentVelocity_read);
-  else
-    ERROR_STREAM << "EnsembleExpert::read_currentVelocity could not read value on controller" << std::endl;
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		EnsembleExpert::write_currentVelocity
-// 
-// description : 	Write currentVelocity attribute values to hardware.
-//
-//-----------------------------------------------------------------------------
-void EnsembleExpert::write_currentVelocity(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "EnsembleExpert::write_currentVelocity(Tango::WAttribute &attr) entering... "<< endl;
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "EnsembleAxis::write_currentVelocity");
-
-
-  attr.get_write_value (attr_currentVelocity_write);
-  if (!axis->set_axis_velocity (attr_currentVelocity_write))
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "controller refused the command",
-                     "EnsembleAxis::write_currentVelocity");
+	if (! is_init ())
+		return;
+	if (axis->get_axis_position_error (*attr_positionError_read))
+		attr.set_value (attr_positionError_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_positionError could not read value on controller" << std::endl;
 }
 
 //+----------------------------------------------------------------------------
@@ -386,12 +405,12 @@ void EnsembleExpert::write_currentVelocity(Tango::WAttribute &attr)
 void EnsembleExpert::read_lowLimit(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_lowLimit(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  if (axis->get_axis_software_limit_low (*attr_lowLimit_read))
-    attr.set_value (attr_lowLimit_read);
-  else
-    ERROR_STREAM << "EnsembleExpert::read_lowLimit could not read value on controller" << std::endl;
+	if (! is_init ())
+		return;
+	if (axis->get_axis_software_limit_low (*attr_lowLimit_read))
+		attr.set_value (attr_lowLimit_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_lowLimit could not read value on controller" << std::endl;
 }
 
 //+----------------------------------------------------------------------------
@@ -404,17 +423,17 @@ void EnsembleExpert::read_lowLimit(Tango::Attribute &attr)
 void EnsembleExpert::write_lowLimit(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::write_lowLimit(Tango::WAttribute &attr) entering... "<< endl;
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "EnsembleAxis::write_lowLimit");
+	if (! is_init ())
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"EnsembleAxis::write_lowLimit");
 
 
-  attr.get_write_value (attr_lowLimit_write);
-  if (!axis->set_axis_software_limit_low (attr_lowLimit_write))
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "controller refused the command",
-                     "EnsembleAxis::write_lowLimit");
+	attr.get_write_value (attr_lowLimit_write);
+	if (!axis->set_axis_software_limit_low (attr_lowLimit_write))
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"controller refused the command",
+						"EnsembleAxis::write_lowLimit");
 }
 
 //+----------------------------------------------------------------------------
@@ -427,12 +446,12 @@ void EnsembleExpert::write_lowLimit(Tango::WAttribute &attr)
 void EnsembleExpert::read_highLimit(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_highLimit(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  if (axis->get_axis_software_limit_high (*attr_highLimit_read))
-    attr.set_value (attr_highLimit_read);
-  else
-    ERROR_STREAM << "EnsembleExpert::read_highLimit could not read value on controller" << std::endl;
+	if (! is_init ())
+		return;
+	if (axis->get_axis_software_limit_high (*attr_highLimit_read))
+		attr.set_value (attr_highLimit_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_highLimit could not read value on controller" << std::endl;
 }
 
 //+----------------------------------------------------------------------------
@@ -445,17 +464,17 @@ void EnsembleExpert::read_highLimit(Tango::Attribute &attr)
 void EnsembleExpert::write_highLimit(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::write_highLimit(Tango::WAttribute &attr) entering... "<< endl;
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "EnsembleAxis::write_lowLimit");
+	if (! is_init ())
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"EnsembleAxis::write_lowLimit");
 
 
-  attr.get_write_value (attr_highLimit_write);
-  if (!axis->set_axis_software_limit_high (attr_highLimit_write))
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "controller refused the command",
-                     "EnsembleAxis::write_highLimit");
+	attr.get_write_value (attr_highLimit_write);
+	if (!axis->set_axis_software_limit_high (attr_highLimit_write))
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"controller refused the command",
+						"EnsembleAxis::write_highLimit");
 }
 
 //+----------------------------------------------------------------------------
@@ -468,12 +487,12 @@ void EnsembleExpert::write_highLimit(Tango::WAttribute &attr)
 void EnsembleExpert::read_homeVelocity(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_homeVelocity(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  if (axis->get_axis_home_speed (*attr_homeVelocity_read))
-    attr.set_value (attr_homeVelocity_read);
-  else
-    ERROR_STREAM << "EnsembleExpert::read_homeVelocity could not read value on controller" << std::endl;
+	if (! is_init ())
+		return;
+	if (axis->get_axis_home_speed (*attr_homeVelocity_read))
+		attr.set_value (attr_homeVelocity_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_homeVelocity could not read value on controller" << std::endl;
 }
 
 //+----------------------------------------------------------------------------
@@ -486,17 +505,17 @@ void EnsembleExpert::read_homeVelocity(Tango::Attribute &attr)
 void EnsembleExpert::write_homeVelocity(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::write_homeVelocity(Tango::WAttribute &attr) entering... "<< endl;
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "EnsembleAxis::write_homeVelocity");
+	if (! is_init ())
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"EnsembleAxis::write_homeVelocity");
 
 
-  attr.get_write_value (attr_homeVelocity_write);
-  if (!axis->set_axis_home_speed (attr_homeVelocity_write))
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "controller refused the command ",
-                     "EnsembleAxis::write_homeVelocity");
+	attr.get_write_value (attr_homeVelocity_write);
+	if (!axis->set_axis_home_speed (attr_homeVelocity_write))
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"controller refused the command ",
+						"EnsembleAxis::write_homeVelocity");
 
 }
 
@@ -510,12 +529,12 @@ void EnsembleExpert::write_homeVelocity(Tango::WAttribute &attr)
 void EnsembleExpert::read_homeOffset(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_homeOffset(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  if (axis->get_axis_home_offset (*attr_homeOffset_read))
-    attr.set_value (attr_homeOffset_read);
-  else
-    ERROR_STREAM << "EnsembleExpert::read_homeOffset could not read value on controller" << std::endl;
+	if (! is_init ())
+		return;
+	if (axis->get_axis_home_offset (*attr_homeOffset_read))
+		attr.set_value (attr_homeOffset_read);
+	else
+		ERROR_STREAM << "EnsembleExpert::read_homeOffset could not read value on controller" << std::endl;
 }
 
 //+----------------------------------------------------------------------------
@@ -528,17 +547,17 @@ void EnsembleExpert::read_homeOffset(Tango::Attribute &attr)
 void EnsembleExpert::write_homeOffset(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::write_homeOffset(Tango::WAttribute &attr) entering... "<< endl;
-  if (! is_init ())
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "EnsembleAxis::write_homeOffset");
+	if (! is_init ())
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"EnsembleAxis::write_homeOffset");
 
 
-  attr.get_write_value (attr_homeOffset_write);
-  if (!axis->set_axis_home_offset (attr_homeOffset_write))
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "controller refused the command ",
-                     "EnsembleAxis::write_homeOffset");
+	attr.get_write_value (attr_homeOffset_write);
+	if (!axis->set_axis_home_offset (attr_homeOffset_write))
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"controller refused the command ",
+						"EnsembleAxis::write_homeOffset");
 }
 
 //+----------------------------------------------------------------------------
@@ -551,16 +570,16 @@ void EnsembleExpert::write_homeOffset(Tango::WAttribute &attr)
 void EnsembleExpert::read_statusRaw(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_statusRaw(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  int i = 0;
-  if (axis->get_axis_status (i))
-  {
-    *attr_statusRaw_read = static_cast <long> (i);
-    attr.set_value (attr_statusRaw_read);
-  }
-  else
-    ERROR_STREAM << "EnsembleExpert::read_statusRaw could not read value on controller" << std::endl;
+	if (! is_init ())
+		return;
+	int i = 0;
+	if (axis->get_axis_status (i))
+	{
+		*attr_statusRaw_read = static_cast <long> (i);
+		attr.set_value (attr_statusRaw_read);
+	}
+	else
+		ERROR_STREAM << "EnsembleExpert::read_statusRaw could not read value on controller" << std::endl;
 }
 
 //+----------------------------------------------------------------------------
@@ -573,30 +592,30 @@ void EnsembleExpert::read_statusRaw(Tango::Attribute &attr)
 void EnsembleExpert::read_errorRaw(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "EnsembleExpert::read_errorRaw(Tango::Attribute &attr) entering... "<< endl;
-  if (! is_init ())
-    return;
-  int i = 0;
-  if (axis->get_axis_fault_status (i))
-  {
-   *attr_errorRaw_read =  static_cast <long> (i);
-    attr.set_value (attr_errorRaw_read);
-  }
-  else
-    ERROR_STREAM << "EnsembleExpert::read_errorRaw could not read value on controller" << std::endl;
+	if (! is_init ())
+		return;
+	int i = 0;
+	if (axis->get_axis_fault_status (i))
+	{
+		*attr_errorRaw_read =  static_cast <long> (i);
+		attr.set_value (attr_errorRaw_read);
+	}
+	else
+		ERROR_STREAM << "EnsembleExpert::read_errorRaw could not read value on controller" << std::endl;
 }
 
 
 
 //+------------------------------------------------------------------
 /**
- *	method:	EnsembleExpert::dev_state
- *
- *	description:	method to execute "State"
- *	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
- *
- * @return	State Code
- *
- */
+*	method:	EnsembleExpert::dev_state
+*
+*	description:	method to execute "State"
+*	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+*
+* @return	State Code
+*
+*/
 //+------------------------------------------------------------------
 Tango::DevState EnsembleExpert::dev_state()
 {
@@ -604,77 +623,77 @@ Tango::DevState EnsembleExpert::dev_state()
 	DEBUG_STREAM << "EnsembleExpert::dev_state(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (!m_init_device_done || m_properties_missing)
-  {
-    argout = Tango::FAULT;
-    set_state (argout);
-    return argout;
-  }
-  if (!axis->connected_ok ())
-  {
-    argout = Tango::FAULT;
-    set_state (argout);
-    return argout;
-  }
+	if (!m_init_device_done || m_properties_missing)
+	{
+		argout = Tango::FAULT;
+		set_state (argout);
+		return argout;
+	}
+	if (!axis->connected_ok ())
+	{
+		argout = Tango::FAULT;
+		set_state (argout);
+		return argout;
+	}
 
-  int err = 0;
-  axis->get_axis_fault_status (err);
+	int err = 0;
+	axis->get_axis_fault_status (err);
 
-  //- could not move (driver disabled = motor OFF)
-  if (!axis->axis_is_enabled ())
-  {
-    argout = Tango::OFF;
-    set_state (argout);
-    return argout;
-  }
+	//- could not move (driver disabled = motor OFF)
+	if (!axis->axis_is_enabled ())
+	{
+		argout = Tango::OFF;
+		set_state (argout);
+		return argout;
+	}
 
-  //- fault
-  if (axis->axis_is_emergency_stop ())
-  {
-    argout = Tango::FAULT;
-    set_state (argout);
-    return argout;
-  }
+	//- fault
+	if (axis->axis_is_emergency_stop ())
+	{
+		argout = Tango::FAULT;
+		set_state (argout);
+		return argout;
+	}
 
-  //- moving
-  if (axis->axis_is_moving ()         ||
-      axis->axis_is_accel_or_decel () ||
-      axis->axis_is_homing ())
-  {
-    argout = Tango::MOVING;
-    set_state (argout);
-    return argout;
-  }
+	//- moving
+	if (axis->axis_is_moving ()         ||
+		axis->axis_is_accel_or_decel () ||
+		axis->axis_is_homing ())
+	{
+		argout = Tango::MOVING;
+		set_state (argout);
+		return argout;
+	}
 
-  //- fault
-  if (err != 0)
-  {
-    argout = Tango::FAULT;
-    set_state (argout);
-    return argout;
-  }
+	//- fault
+	if (err != 0)
+	{
+		argout = Tango::FAULT;
+		set_state (argout);
+		return argout;
+	}
 
-  //- Alarm
-  if (!axis->axis_is_homed () ||
-      ((err & 0x3C) != 0))            //- Hard or soft limits)
-  {
-    argout = Tango::ALARM;
-    set_state (argout);
-    return argout;
-  }
+	//- Alarm
+	if (!axis->axis_is_homed () ||
+		((err & 0x3C) != 0))            //- Hard or soft limits)
+	{
+		argout = Tango::ALARM;
+		set_state (argout);
+		return argout;
+	}
 
 
-  //- Standby
-  if (axis->axis_is_in_position () || axis->axis_is_enabled ())
-  {
-    argout = Tango::STANDBY;
-    set_state (argout);
-    return argout;
-  }
+	//- Standby
+	if (axis->axis_is_in_position () || axis->axis_is_enabled ())
+	{
+		argout = Tango::STANDBY;
+		set_state (argout);
+		return argout;
+	}
 
- 
-  //- out of position, not moving,... dont know.
-  argout = Tango::ALARM;
+
+	//- out of position, not moving,... dont know.
+	argout = Tango::ALARM;
 	set_state(argout);
 	return argout;
 
@@ -682,102 +701,98 @@ Tango::DevState EnsembleExpert::dev_state()
 
 //+------------------------------------------------------------------
 /**
- *	method:	EnsembleExpert::dev_status
- *
- *	description:	method to execute "Status"
- *	This command gets the device status (stored in its <i>device_status</i> data member) and returns it to the caller.
- *
- * @return	Status description
- *
- */
+*	method:	EnsembleExpert::dev_status
+*
+*	description:	method to execute "Status"
+*	This command gets the device status (stored in its <i>device_status</i> data member) and returns it to the caller.
+*
+* @return	Status description
+*
+*/
 //+------------------------------------------------------------------
 Tango::ConstDevString EnsembleExpert::dev_status()
 {
 	DEBUG_STREAM << "EnsembleExpert::dev_status(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (!m_init_device_done || m_properties_missing)
-  {
-    set_status (m_status_str.c_str ());
-    return m_status_str.c_str ();
-  }
-  m_status_str.clear ();
-  int raw_status = 0;
-  axis->get_axis_status (raw_status);
+	if (!m_init_device_done || m_properties_missing)
+	{
+		set_status (m_status_str.c_str ());
+		return m_status_str.c_str ();
+	}
+	m_status_str.clear ();
+	int raw_status = 0;
+	axis->get_axis_status (raw_status);
 
-  std::stringstream s;
-  s << "Raw Status <" << std::hex << std::setw (8) << std::setfill ('0') << raw_status << ">" << std::endl;
+	std::stringstream s;
+	s << "Raw Status <" << std::hex << std::setw (8) << std::setfill ('0') << raw_status << ">" << std::endl;
 
-  if (!axis->connected_ok ())
-  {
-    m_status_str += "communication not working\n";
-    return m_status_str.c_str ();
-  }
+	if (!axis->connected_ok ())
+	{
+		m_status_str += "communication not working\n";
+		return m_status_str.c_str ();
+	}
 
-  if (axis->axis_is_enabled ())
-    m_status_str += "Axis Enabled\n";
-  else
-    m_status_str += "Axis Disabled\n";
-  if (axis->axis_is_emergency_stop ())
-    m_status_str += "Emergency Stop\n";
-  if (axis->axis_is_brake_on ())
-    m_status_str += "Brake ON\n";
-  if (axis->axis_is_brake_off ())
-    m_status_str += "Brake OFF\n";
-  if (axis->axis_is_homed ())
-    m_status_str += "Axis Homing Done\n";
-  else
-    m_status_str += "Axis NOT HOMED\n";
-  if (axis->axis_is_moving ())
-    m_status_str += "Axis Moving\n";
-  if (axis->axis_is_accelerating ())
-    m_status_str += "Axis Accelerating\n";
-  if (axis->axis_is_decelerating ())
-    m_status_str += "Axis Decelerating\n";
-  if (axis->axis_is_accel_or_decel ())
-    m_status_str += "Axis Accelerating OR decelerating\n";
-  if (axis->axis_is_in_position ())
-    m_status_str += "Axis in position\n";
-  else
-    m_status_str += "Axis NOT in position\n";
+	if (axis->axis_is_enabled ())
+		m_status_str += "Axis Enabled\n";
+	else
+		m_status_str += "Axis Disabled\n";
+	if (axis->axis_is_emergency_stop ())
+		m_status_str += "Emergency Stop\n";
+	if (axis->axis_is_brake_on ())
+		m_status_str += "Brake ON\n";
+	if (axis->axis_is_brake_off ())
+		m_status_str += "Brake OFF\n";
+	if (axis->axis_is_homed ())
+		m_status_str += "Axis Homing Done\n";
+	else
+		m_status_str += "Axis NOT HOMED\n";
+	if (axis->axis_is_moving ())
+		m_status_str += "Axis Moving\n";
+	if (axis->axis_is_accelerating ())
+		m_status_str += "Axis Accelerating\n";
+	if (axis->axis_is_decelerating ())
+		m_status_str += "Axis Decelerating\n";
+	if (axis->axis_is_accel_or_decel ())
+		m_status_str += "Axis Accelerating OR decelerating\n";
+	if (axis->axis_is_in_position ())
+		m_status_str += "Axis in position\n";
+	else
+		m_status_str += "Axis NOT in position\n";
 
-  //- errors if any
-  int err;
-  if (axis->get_axis_fault_status (err))
-  {
-    char errors [512];
-    axis->error_to_string(err, errors);
-    m_status_str += errors;
-  }
+	//- errors if any
+	int err;
+	if (axis->get_axis_fault_status (err))
+	{
+		char errors [512];
+		axis->error_to_string(err, errors);
+		m_status_str += errors;
+	}
 
-  return m_status_str.c_str ();
+	return m_status_str.c_str ();
 
 }
 
-
 //+------------------------------------------------------------------
 /**
- *	internal method:	EnsembleExpert::is_init
- *
- * @return	boo true is init of device is ok 
- *
- */
+*	internal method:	EnsembleExpert::is_init
+*
+* @return	boo true is init of device is ok 
+*
+*/
 //+------------------------------------------------------------------
 bool EnsembleExpert::is_init()
 {
 	DEBUG_STREAM << "EnsembleExpert::is_init(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (!m_init_device_done || m_properties_missing)
-    return false;
-  if (!axis->connected_ok ())
-    return false;
+	if (!m_init_device_done || m_properties_missing)
+		return false;
+	if (!axis->connected_ok ())
+		return false;
 
-  return true;
+	return true;
 }
-
-
-
 
 
 }	//	namespace

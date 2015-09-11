@@ -286,19 +286,19 @@ protected :
 	//	Add your own data members here
 	//-----------------------------------------
 
-  //- init utilities
+	//- init utilities
 	bool m_init_device_done;
 	bool m_properties_missing;
 
 
-  //- the device status string
+	//- the device status string
 	std::string m_status_str;
 
-  //- check wether or not the device is properly init
-  void check_init () 
+	//- check wether or not the device is properly init
+	void check_init () 
     throw (Tango::DevFailed);
 
-  Aerotech_ns::AbstractAerotech * controller;
+	Aerotech_ns::AbstractAerotech * controller;
 };
 
 }	// namespace_ns

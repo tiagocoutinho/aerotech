@@ -48,6 +48,18 @@ namespace EnsembleExpert_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
+class calibrationActiveAttrib: public Tango::Attr
+{
+public:
+	calibrationActiveAttrib():Attr("calibrationActive", Tango::DEV_BOOLEAN, Tango::READ) {};
+	~calibrationActiveAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<EnsembleExpert *>(dev))->read_calibrationActive(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<EnsembleExpert *>(dev))->is_calibrationActive_allowed(ty);}
+};
+
 class errorRawAttrib: public Tango::Attr
 {
 public:
@@ -142,18 +154,28 @@ public:
 	{return (static_cast<EnsembleExpert *>(dev))->is_lowLimit_allowed(ty);}
 };
 
-class currentVelocityAttrib: public Tango::Attr
+class velocityCommandAttrib: public Tango::Attr
 {
 public:
-	currentVelocityAttrib():Attr("currentVelocity", Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
-	~currentVelocityAttrib() {};
+	velocityCommandAttrib():Attr("velocityCommand", Tango::DEV_DOUBLE, Tango::READ) {};
+	~velocityCommandAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<EnsembleExpert *>(dev))->read_currentVelocity(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-	{(static_cast<EnsembleExpert *>(dev))->write_currentVelocity(att);}
+	{(static_cast<EnsembleExpert *>(dev))->read_velocityCommand(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<EnsembleExpert *>(dev))->is_currentVelocity_allowed(ty);}
+	{return (static_cast<EnsembleExpert *>(dev))->is_velocityCommand_allowed(ty);}
+};
+
+class velocityFeedbackAttrib: public Tango::Attr
+{
+public:
+	velocityFeedbackAttrib():Attr("velocityFeedback", Tango::DEV_DOUBLE, Tango::READ) {};
+	~velocityFeedbackAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<EnsembleExpert *>(dev))->read_velocityFeedback(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<EnsembleExpert *>(dev))->is_velocityFeedback_allowed(ty);}
 };
 
 class positionErrorAttrib: public Tango::Attr

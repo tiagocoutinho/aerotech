@@ -93,19 +93,19 @@ namespace AerotechBox_ns
 //
 //-----------------------------------------------------------------------------
 AerotechBox::AerotechBox(Tango::DeviceClass *cl,string &s)
-:Tango::Device_4Impl(cl,s.c_str())
+	:Tango::Device_4Impl(cl,s.c_str())
 {
 	init_device();
 }
 
 AerotechBox::AerotechBox(Tango::DeviceClass *cl,const char *s)
-:Tango::Device_4Impl(cl,s)
+	:Tango::Device_4Impl(cl,s)
 {
 	init_device();
 }
 
 AerotechBox::AerotechBox(Tango::DeviceClass *cl,const char *s,const char *d)
-:Tango::Device_4Impl(cl,s,d)
+	:Tango::Device_4Impl(cl,s,d)
 {
 	init_device();
 }
@@ -120,10 +120,10 @@ void AerotechBox::delete_device()
 {
 	//	Delete device allocated objects
 
-  DELETE_SCALAR_ATTRIBUTE(attr_oKCommandCounter_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_oKCommandCounter_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_badCommandCounter_read);
 
-  Aerotech_ns::SocketPool::instance ()->release ();
+	Aerotech_ns::SocketPool::instance ()->release ();
 }
 
 //+----------------------------------------------------------------------------
@@ -147,80 +147,80 @@ void AerotechBox::init_device()
 	CREATE_SCALAR_ATTRIBUTE(attr_badCommandCounter_read, long (0));
 
 	get_device_property();
-  if (m_properties_missing) //- Status is updated in get_device_property()
-    return;
+	if (m_properties_missing) //- Status is updated in get_device_property()
+		return;
 
-  //- create SocketPool singleton
-  Aerotech_ns::SocketPool::Config conf;
-  conf.ip_address = iPAddress;
-  conf.port = port;
-  conf.in_tmout = tCPTimeOut;
-  conf.o_tmout = tCPTimeOut;
-  conf.start_tmout = 3 * tCPTimeOut;
+	//- create SocketPool singleton
+	Aerotech_ns::SocketPool::Config conf;
+	conf.ip_address = iPAddress;
+	conf.port = port;
+	conf.in_tmout = tCPTimeOut;
+	conf.o_tmout = tCPTimeOut;
+	conf.start_tmout = 3 * tCPTimeOut;
 
-  try
-  {
-    Aerotech_ns::SocketPool::instance ();
-    Aerotech_ns::SocketPool::instance ()->initialize();
-    Aerotech_ns::SocketPool::instance ()->configure(conf);
-  }
-  catch (yat::Exception & ye)
-  {
-    ERROR_STREAM << "AerotechBox: Initialization failed - YAT Error: " << std::string(ye.errors[0].desc) << std::endl;
-    m_status_str = "Device initialization failed - YAT Error: \n" 
-                           + std::string(ye.errors[0].desc);
-    return;
-  }
-  catch (Tango::DevFailed &e)
-  {
-    ERROR_STREAM << "AerotechBox: Initialization failed - Tango Error: " << e << std::endl;
-    m_status_str = "Device initialization failed - Tango Error: \n"
-                       + std::string(e.errors[0].desc);
-    return;
-  }
-  catch (...)
-  {
-    ERROR_STREAM << "AerotechBox: Initialization failed - Unknown Error" << std::endl;
-    m_status_str = "Device initialization failed - Unknown Error";
-    return;
-  }
-  try
-  {
-    if (controllerType == "A3200")
-      controller = new Aerotech_ns::cA3200 (const_cast <char *> (mainAxisName.c_str ()));
-    else if (controllerType == "ENSEMBLE")
-      controller = new Aerotech_ns::cEnsemble (const_cast <char *> (mainAxisName.c_str ()));
-    else
-    {
-      ERROR_STREAM << "AerotechBox: Initialization failed [unknown Controller type: " << controllerType << " ]" << std::endl;
-      m_status_str = "Device initialization failed " + controllerType + " controller type not supported";
-      return;
-    }
-  }
-  catch (yat::Exception & ye)
-  {
-    ERROR_STREAM << "AerotechBox: Initialization failed - YAT Error: " << std::string(ye.errors[0].desc) << std::endl;
-    m_status_str = "Device initialization failed - YAT Error: \n"
-                       + std::string(ye.errors[0].desc);
-    return;
-  }
-  catch (Tango::DevFailed &e)
-  {
-    ERROR_STREAM << "AerotechBox: Initialization failed - Tango Error: " << e << std::endl;
-    m_status_str = "Device initialization failed - Tango Error: \n"
-                       + std::string(e.errors[0].desc);
-    return;
-  }
-  catch (...)
-  {
-     ERROR_STREAM << "AerotechBox: Initialization failed - Unknown Error" << std::endl;
-    m_status_str = "Device initialization failed - Unknown Error";
-    return;
-  }
-  
-  m_init_device_done = true;
-  
-  dev_state();
+	try
+	{
+		Aerotech_ns::SocketPool::instance ();
+		Aerotech_ns::SocketPool::instance ()->initialize();
+		Aerotech_ns::SocketPool::instance ()->configure(conf);
+	}
+	catch (yat::Exception & ye)
+	{
+		ERROR_STREAM << "AerotechBox: Initialization failed - YAT Error: " << std::string(ye.errors[0].desc) << std::endl;
+		m_status_str = "Device initialization failed - YAT Error: \n" 
+			+ std::string(ye.errors[0].desc);
+		return;
+	}
+	catch (Tango::DevFailed &e)
+	{
+		ERROR_STREAM << "AerotechBox: Initialization failed - Tango Error: " << e << std::endl;
+		m_status_str = "Device initialization failed - Tango Error: \n"
+			+ std::string(e.errors[0].desc);
+		return;
+	}
+	catch (...)
+	{
+		ERROR_STREAM << "AerotechBox: Initialization failed - Unknown Error" << std::endl;
+		m_status_str = "Device initialization failed - Unknown Error";
+		return;
+	}
+	try
+	{
+		if (controllerType == "A3200")
+			controller = new Aerotech_ns::cA3200 (const_cast <char *> (mainAxisName.c_str ()));
+		else if (controllerType == "ENSEMBLE")
+			controller = new Aerotech_ns::cEnsemble (const_cast <char *> (mainAxisName.c_str ()));
+		else
+		{
+			ERROR_STREAM << "AerotechBox: Initialization failed [unknown Controller type: " << controllerType << " ]" << std::endl;
+			m_status_str = "Device initialization failed " + controllerType + " controller type not supported";
+			return;
+		}
+	}
+	catch (yat::Exception & ye)
+	{
+		ERROR_STREAM << "AerotechBox: Initialization failed - YAT Error: " << std::string(ye.errors[0].desc) << std::endl;
+		m_status_str = "Device initialization failed - YAT Error: \n"
+			+ std::string(ye.errors[0].desc);
+		return;
+	}
+	catch (Tango::DevFailed &e)
+	{
+		ERROR_STREAM << "AerotechBox: Initialization failed - Tango Error: " << e << std::endl;
+		m_status_str = "Device initialization failed - Tango Error: \n"
+			+ std::string(e.errors[0].desc);
+		return;
+	}
+	catch (...)
+	{
+		ERROR_STREAM << "AerotechBox: Initialization failed - Unknown Error" << std::endl;
+		m_status_str = "Device initialization failed - Unknown Error";
+		return;
+	}
+
+	m_init_device_done = true;
+
+	dev_state();
 }
 
 
@@ -235,10 +235,10 @@ void AerotechBox::get_device_property()
 {
 	//	Initialize your default values here (if not done with  POGO).
 	//------------------------------------------------------------------
-  iPAddress = "must be defined [set here the IP Address]";
-  port = 8000;
-  tCPTimeOut = 2000;
-  controllerType = "must be defined [set ControllerType to [A3200|ENSEMBLE]]";
+	iPAddress = "must be defined [set here the IP Address]";
+	port = 8000;
+	tCPTimeOut = 2000;
+	controllerType = "must be defined [set ControllerType to [A3200|ENSEMBLE]]";
 	mainAxisName = "must be defined [set here the main Axis Name]";
 
 
@@ -319,45 +319,45 @@ void AerotechBox::get_device_property()
 
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
-  Tango::DbData data_put;
-  if (dev_prop[0].is_empty()==true || iPAddress.find ("must be defined") != std::string::npos)
+	Tango::DbData data_put;
+	if (dev_prop[0].is_empty()==true || iPAddress.find ("must be defined") != std::string::npos)
 	{
-    ERROR_STREAM << "AerotechBox::get_device_property IPAddress not defined" << std::endl;
-    m_status_str = "AerotechBox::get_device_property IPAddress not defined \n[set IP Address and restart device]";
+		ERROR_STREAM << "AerotechBox::get_device_property IPAddress not defined" << std::endl;
+		m_status_str = "AerotechBox::get_device_property IPAddress not defined \n[set IP Address and restart device]";
 		m_properties_missing = true;
 		Tango::DbDatum	property("IPAddress");
 		property	<<	iPAddress;
 		data_put.push_back(property);
 	}
-  if (dev_prop[1].is_empty()==true)
+	if (dev_prop[1].is_empty()==true)
 	{
-    INFO_STREAM << "AerotechBox::get_device_property Port not defined" << std::endl;
+		INFO_STREAM << "AerotechBox::get_device_property Port not defined" << std::endl;
 		Tango::DbDatum	property("Port");
 		property	<<	port;
 		data_put.push_back(property);
 	}
-  if (dev_prop[2].is_empty()==true)
+	if (dev_prop[2].is_empty()==true)
 	{
-    INFO_STREAM << "AerotechBox::get_device_property TCPTimeOut not defined" << std::endl;
+		INFO_STREAM << "AerotechBox::get_device_property TCPTimeOut not defined" << std::endl;
 		Tango::DbDatum	property("TCPTimeOut");
 		property	<<	tCPTimeOut;
 		data_put.push_back(property);
 	}
-  if ((dev_prop[3].is_empty()==true) || 
-      (controllerType.find ("A3200") == std::string::npos) &&
-      (controllerType.find ("ENSEMBLE") == std::string::npos))
+	if ((dev_prop[3].is_empty()==true) || 
+		(controllerType.find ("A3200") == std::string::npos) &&
+		(controllerType.find ("ENSEMBLE") == std::string::npos))
 	{
-    ERROR_STREAM << "AerotechBox::get_device_property ControllerType not defined" << std::endl;
-    m_status_str = "AerotechBox::get_device_property ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
+		ERROR_STREAM << "AerotechBox::get_device_property ControllerType not defined" << std::endl;
+		m_status_str = "AerotechBox::get_device_property ControllerType not defined \n[set ControllerType to [A3200|ENSEMBLE] and restart device]";
 		m_properties_missing = true;
 		Tango::DbDatum	property("ControllerType");
 		property	<<	controllerType;
 		data_put.push_back(property);
 	}
-  if (dev_prop[4].is_empty()==true || mainAxisName.find ("must be defined") != std::string::npos)
+	if (dev_prop[4].is_empty()==true || mainAxisName.find ("must be defined") != std::string::npos)
 	{
-    ERROR_STREAM << "AerotechBox::get_device_property MainAxisName not defined" << std::endl;
-    m_status_str = "AerotechBox::get_device_property MainAxisName not defined \n[set main axis name and restart device]";
+		ERROR_STREAM << "AerotechBox::get_device_property MainAxisName not defined" << std::endl;
+		m_status_str = "AerotechBox::get_device_property MainAxisName not defined \n[set main axis name and restart device]";
 		m_properties_missing = true;
 		Tango::DbDatum	property("MainAxisName");
 		property	<<	mainAxisName;
@@ -376,7 +376,7 @@ void AerotechBox::get_device_property()
 //-----------------------------------------------------------------------------
 void AerotechBox::always_executed_hook()
 {
-	
+
 }
 //+----------------------------------------------------------------------------
 //
@@ -401,10 +401,10 @@ void AerotechBox::read_attr_hardware(vector<long> &attr_list)
 void AerotechBox::read_oKCommandCounter(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "AerotechBox::read_oKCommandCounter(Tango::Attribute &attr) entering... "<< endl;
-  if (!m_init_device_done || m_properties_missing)
-    return;
-  *attr_oKCommandCounter_read = Aerotech_ns::SocketPool::instance ()->get_comm_success_counter ();
-  attr.set_value (attr_oKCommandCounter_read);
+	if (!m_init_device_done || m_properties_missing)
+		return;
+	*attr_oKCommandCounter_read = Aerotech_ns::SocketPool::instance ()->get_comm_success_counter ();
+	attr.set_value (attr_oKCommandCounter_read);
 }
 
 //+----------------------------------------------------------------------------
@@ -417,110 +417,110 @@ void AerotechBox::read_oKCommandCounter(Tango::Attribute &attr)
 void AerotechBox::read_badCommandCounter(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "AerotechBox::read_badCommandCounter(Tango::Attribute &attr) entering... "<< endl;
-  if (!m_init_device_done || m_properties_missing)
-    return;
-  *attr_badCommandCounter_read = Aerotech_ns::SocketPool::instance ()->get_comm_errors_counter ();
-  attr.set_value (attr_badCommandCounter_read);
+	if (!m_init_device_done || m_properties_missing)
+		return;
+	*attr_badCommandCounter_read = Aerotech_ns::SocketPool::instance ()->get_comm_errors_counter ();
+	attr.set_value (attr_badCommandCounter_read);
 }
 
 //+------------------------------------------------------------------
 /**
- *	method:	AerotechBox::reset
- *
- *	description:	method to execute "Reset"
- *	Reset the controller
- *
- *
- */
+*	method:	AerotechBox::reset
+*
+*	description:	method to execute "Reset"
+*	Reset the controller
+*
+*
+*/
 //+------------------------------------------------------------------
 void AerotechBox::reset()
 {
 	DEBUG_STREAM << "AerotechBox::reset(): entering... !" << endl;
 	//	Add your own code to control device here
-  if (!m_init_device_done || m_properties_missing)
-    THROW_DEVFAILED (_CPTC ("OPERATION_NOT_ALLOWED"),
-                     _CPTC ("Device initialization failed [check properties, try to restart device]"),
-                     _CPTC ("AerotechBox::reset"));
+	if (!m_init_device_done || m_properties_missing)
+		THROW_DEVFAILED (_CPTC ("OPERATION_NOT_ALLOWED"),
+						_CPTC ("Device initialization failed [check properties, try to restart device]"),
+						_CPTC ("AerotechBox::reset"));
 
-  controller->reset ();
+	controller->reset ();
 }
 
 //+------------------------------------------------------------------
 /**
- *	method:	AerotechBox::dev_state
- *
- *	description:	method to execute "State"
- *	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
- *
- * @return	State Code
- *
- */
+*	method:	AerotechBox::dev_state
+*
+*	description:	method to execute "State"
+*	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+*
+* @return	State Code
+*
+*/
 //+------------------------------------------------------------------
 Tango::DevState AerotechBox::dev_state()
 {
-  Tango::DevState	argout = Tango::UNKNOWN;
+	Tango::DevState	argout = Tango::UNKNOWN;
 	DEBUG_STREAM << "AerotechBox::dev_state(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (!m_init_device_done || m_properties_missing)
-  {
-    argout = Tango::FAULT;
-    set_state (argout);
-    return argout;
-  }
-  argout = controller->connected_ok () ? Tango::OPEN : Tango::CLOSE;
+	if (!m_init_device_done || m_properties_missing)
+	{
+		argout = Tango::FAULT;
+		set_state (argout);
+		return argout;
+	}
+	argout = controller->connected_ok () ? Tango::OPEN : Tango::CLOSE;
 	set_state(argout);
 	return argout;
 }
 
 //+------------------------------------------------------------------
 /**
- *	method:	AerotechBox::dev_status
- *
- *	description:	method to execute "Status"
- *	This command gets the device status (stored in its <i>device_status</i> data member) and returns it to the caller.
- *
- * @return	Status description
- *
- */
+*	method:	AerotechBox::dev_status
+*
+*	description:	method to execute "Status"
+*	This command gets the device status (stored in its <i>device_status</i> data member) and returns it to the caller.
+*
+* @return	Status description
+*
+*/
 //+------------------------------------------------------------------
 Tango::ConstDevString AerotechBox::dev_status()
 {
 	DEBUG_STREAM << "AerotechBox::dev_status(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (!m_init_device_done || m_properties_missing)
-  {
-    set_status (m_status_str.c_str ());
-    return m_status_str.c_str ();
-  }
+	if (!m_init_device_done || m_properties_missing)
+	{
+		set_status (m_status_str.c_str ());
+		return m_status_str.c_str ();
+	}
 
-  m_status_str.clear ();
-  m_status_str = "device is up and running\n";
-  bool connected = controller->connected_ok ();
-  if (connected)
-    m_status_str += "communication opened\n";
-  else
-    m_status_str += "communication closed\n";
+	m_status_str.clear ();
+	m_status_str = "device is up and running\n";
+	bool connected = controller->connected_ok ();
+	if (connected)
+		m_status_str += "communication opened\n";
+	else
+		m_status_str += "communication closed\n";
 
-  m_status_str += "Controller TYPE : <" + controllerType + ">\n";
+	m_status_str += "Controller TYPE : <" + controllerType + ">\n";
 
-  set_status (m_status_str.c_str ());
-  return m_status_str.c_str ();
+	set_status (m_status_str.c_str ());
+	return m_status_str.c_str ();
 }
 
 //+------------------------------------------------------------------
 /**
- *	method:	AerotechBox::exec_low_level_cmd
- *
- *	description:	method to execute "ExecLowLevelCmd"
- *	executes a Aerotech cmd and returns the response
- *	** WARNING : EXPERT USERS ONLY! YOU CAN CRASH THE CONTROLLER! **
- *
- * @param	argin	
- * @return	
- *
- */
+*	method:	AerotechBox::exec_low_level_cmd
+*
+*	description:	method to execute "ExecLowLevelCmd"
+*	executes a Aerotech cmd and returns the response
+*	** WARNING : EXPERT USERS ONLY! YOU CAN CRASH THE CONTROLLER! **
+*
+* @param	argin	
+* @return	
+*
+*/
 //+------------------------------------------------------------------
 Tango::DevString AerotechBox::exec_low_level_cmd(Tango::DevString argin)
 {
@@ -530,108 +530,107 @@ Tango::DevString AerotechBox::exec_low_level_cmd(Tango::DevString argin)
 	//		(chapter : Writing a TANGO DS / Exchanging data)
 	//------------------------------------------------------------
 	Tango::DevString	argout  = new char[256];
-  ::memset (argout, 0, 256);
+	::memset (argout, 0, 256);
 
 
 	DEBUG_STREAM << "AerotechBox::exec_low_level_cmd(): entering... !" << endl;
-  if (! m_init_device_done || m_properties_missing)
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "AerotechBox::exec_low_level_cmd");
+	if (! m_init_device_done || m_properties_missing)
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"AerotechBox::exec_low_level_cmd");
 
 	//	Add your own code to control device here
-  if (!controller->lowlevelcmd (argin, argout))
-    THROW_DEVFAILED ("COMMAND_FAILED",
-                    "command failed [controller refused command]",
-                    "AerotechBox::exec_low_level_cmd");
+	if (!controller->lowlevelcmd (argin, argout))
+		THROW_DEVFAILED ("COMMAND_FAILED",
+						"command failed [controller refused command]",
+						"AerotechBox::exec_low_level_cmd");
+
 	return argout;
 }
 
 
 //+------------------------------------------------------------------
 /**
- *	method:	AerotechBox::save_in_flash
- *
- *	description:	method to execute "SaveInFlash"
- *	writes in non volatile memory the parameters for all controllers
- *
- *
- */
+*	method:	AerotechBox::save_in_flash
+*
+*	description:	method to execute "SaveInFlash"
+*	writes in non volatile memory the parameters for all controllers
+*
+*
+*/
 //+------------------------------------------------------------------
 void AerotechBox::save_in_flash()
 {
 	DEBUG_STREAM << "AerotechBox::save_in_flash(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (! m_init_device_done || m_properties_missing)
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "AerotechBox::save_in_flash");
+	if (! m_init_device_done || m_properties_missing)
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"AerotechBox::save_in_flash");
 
 
-  bool ok = controller->commit_parameters ();
-  if (!ok)
-   THROW_DEVFAILED ("COMMAND_FAILED",
-                    "command failed [controller refused command (only for Ensemble Controllers)]",
-                    "EnsembleAxis::save_in_flash");}
-
-
-
+	bool ok = controller->commit_parameters ();
+	if (!ok)
+		THROW_DEVFAILED ("COMMAND_FAILED",
+						"command failed [controller refused command (only for Ensemble Controllers)]",
+						"EnsembleAxis::save_in_flash");
+}
 
 //+------------------------------------------------------------------
 /**
- *	method:	AerotechBox::run_program
- *
- *	description:	method to execute "RunProgram"
- *	runs the program specified in the task specified
- *	EXPERT COMMAND - can crash the controller!
- *
- * @param	argin	[program name][task number]
- *
- */
+*	method:	AerotechBox::run_program
+*
+*	description:	method to execute "RunProgram"
+*	runs the program specified in the task specified
+*	EXPERT COMMAND - can crash the controller!
+*
+* @param	argin	[program name][task number]
+*
+*/
 //+------------------------------------------------------------------
 void AerotechBox::run_program(const Tango::DevVarLongStringArray *argin)
 {
 	DEBUG_STREAM << "AerotechBox::run_program(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (! m_init_device_done || m_properties_missing)
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "AerotechBox::run_program");
+	if (! m_init_device_done || m_properties_missing)
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"AerotechBox::run_program");
 
-		
-		if(((*argin).svalue.length() != 1) && ((*argin).lvalue.length() != 1))
-		{
-			THROW_DEVFAILED ("BAD_PARAMETERS()",
-				               "invalid parameters [provide program Name and Task Number]",
-				               "AerotechBox::run_program");
-		}
-		
-		controller->programrun (const_cast <char*>((*argin).svalue[0].in()), (*argin).lvalue[0]);
+
+	if(((*argin).svalue.length() != 1) && ((*argin).lvalue.length() != 1))
+	{
+		THROW_DEVFAILED ("BAD_PARAMETERS()",
+						"invalid parameters [provide program Name and Task Number]",
+						"AerotechBox::run_program");
+	}
+
+	controller->programrun (const_cast <char*>((*argin).svalue[0].in()), (*argin).lvalue[0]);
 }
 
 //+------------------------------------------------------------------
 /**
- *	method:	AerotechBox::stop_program
- *
- *	description:	method to execute "StopProgram"
- *	stops the program in the task
- *	EXPERT COMMAND - can crash the controller!
- *
- * @param	argin	the task number
- *
- */
+*	method:	AerotechBox::stop_program
+*
+*	description:	method to execute "StopProgram"
+*	stops the program in the task
+*	EXPERT COMMAND - can crash the controller!
+*
+* @param	argin	the task number
+*
+*/
 //+------------------------------------------------------------------
 void AerotechBox::stop_program(Tango::DevLong argin)
 {
 	DEBUG_STREAM << "AerotechBox::stop_program(): entering... !" << endl;
 
 	//	Add your own code to control device here
-  if (! m_init_device_done || m_properties_missing)
-    THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
-                     "device not properly initialized [check properties, communication lost]",
-                     "AerotechBox::stop_program");
+	if (! m_init_device_done || m_properties_missing)
+		THROW_DEVFAILED ("OPERATION_NOT_ALLOWED",
+						"device not properly initialized [check properties, communication lost]",
+						"AerotechBox::stop_program");
 
 	controller->programstop (argin);
 }

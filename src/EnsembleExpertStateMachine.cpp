@@ -59,20 +59,6 @@ namespace EnsembleExpert_ns
 
 //+----------------------------------------------------------------------------
 //
-// method : 		EnsembleExpert::is_currentVelocity_allowed
-// 
-// description : 	Read/Write allowed for currentVelocity attribute.
-//
-//-----------------------------------------------------------------------------
-bool EnsembleExpert::is_currentVelocity_allowed(Tango::AttReqType type)
-{
-		//	End of Generated Code
-
-		//	Re-Start of Generated Code
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
 // method : 		EnsembleExpert::is_lowLimit_allowed
 // 
 // description : 	Read/Write allowed for lowLimit attribute.
@@ -177,6 +163,48 @@ bool EnsembleExpert::is_positionError_allowed(Tango::AttReqType type)
 //
 //-----------------------------------------------------------------------------
 bool EnsembleExpert::is_rampRate_allowed(Tango::AttReqType type)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		EnsembleExpert::is_calibrationActive_allowed
+// 
+// description : 	Read/Write allowed for calibrationActive attribute.
+//
+//-----------------------------------------------------------------------------
+bool EnsembleExpert::is_calibrationActive_allowed(Tango::AttReqType type)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		EnsembleExpert::is_velocityFeedback_allowed
+// 
+// description : 	Read/Write allowed for velocityFeedback attribute.
+//
+//-----------------------------------------------------------------------------
+bool EnsembleExpert::is_velocityFeedback_allowed(Tango::AttReqType type)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		EnsembleExpert::is_velocityCommand_allowed
+// 
+// description : 	Read/Write allowed for velocityCommand attribute.
+//
+//-----------------------------------------------------------------------------
+bool EnsembleExpert::is_velocityCommand_allowed(Tango::AttReqType type)
 {
 		//	End of Generated Code
 

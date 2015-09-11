@@ -322,16 +322,16 @@ public :
 protected :	
 	//	Add your own data members here
 	//-----------------------------------------
-  //- init utilities
+	//- init utilities
 	bool m_init_device_done;
 	bool m_properties_missing;
 
-  //- the device status string
+	//- the device status string
 	std::string m_status_str;
 
-  //- check wether or not the device is properly init
-  bool is_init ();
-  Aerotech_ns::cA3200 * axis;
+	//- check wether or not the device is properly init
+	bool is_init ();
+	Aerotech_ns::cA3200 * axis;
 };
 
 }	// namespace_ns

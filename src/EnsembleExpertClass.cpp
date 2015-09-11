@@ -248,20 +248,36 @@ void EnsembleExpertClass::attribute_factory(vector<Tango::Attr *> &att_list)
 {
 	//	Attribute : positionError
 	positionErrorAttrib	*position_error = new positionErrorAttrib();
+	Tango::UserDefaultAttrProp	position_error_prop;
+	position_error_prop.set_description("position error");
+	position_error->set_default_properties(position_error_prop);
 	att_list.push_back(position_error);
 
-	//	Attribute : currentVelocity
-	currentVelocityAttrib	*current_velocity = new currentVelocityAttrib();
-	Tango::UserDefaultAttrProp	current_velocity_prop;
-	current_velocity_prop.set_description("get/sets current velocity in the controller");
-	current_velocity->set_default_properties(current_velocity_prop);
-	att_list.push_back(current_velocity);
+	//	Attribute : velocityFeedback
+	velocityFeedbackAttrib	*velocity_feedback = new velocityFeedbackAttrib();
+	Tango::UserDefaultAttrProp	velocity_feedback_prop;
+	velocity_feedback_prop.set_label("velocity Feedback");
+	velocity_feedback_prop.set_unit(" ");
+	velocity_feedback_prop.set_description("velocity Feedback(VFBK)");
+	velocity_feedback->set_default_properties(velocity_feedback_prop);
+	att_list.push_back(velocity_feedback);
+
+	//	Attribute : velocityCommand
+	velocityCommandAttrib	*velocity_command = new velocityCommandAttrib();
+	Tango::UserDefaultAttrProp	velocity_command_prop;
+	velocity_command_prop.set_label("velocity Command");
+	velocity_command_prop.set_unit(" ");
+	velocity_command_prop.set_description("velocity Command (VCMD)");
+	velocity_command->set_default_properties(velocity_command_prop);
+	att_list.push_back(velocity_command);
 
 	//	Attribute : lowLimit
 	lowLimitAttrib	*low_limit = new lowLimitAttrib();
 	Tango::UserDefaultAttrProp	low_limit_prop;
 	low_limit_prop.set_description("get/sets software low limits in the controller");
 	low_limit->set_default_properties(low_limit_prop);
+	low_limit->set_memorized();
+	low_limit->set_memorized_init(true);
 	att_list.push_back(low_limit);
 
 	//	Attribute : highLimit
@@ -269,6 +285,8 @@ void EnsembleExpertClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	high_limit_prop;
 	high_limit_prop.set_description("get/sets software high limits in the controller");
 	high_limit->set_default_properties(high_limit_prop);
+	high_limit->set_memorized();
+	high_limit->set_memorized_init(true);
 	att_list.push_back(high_limit);
 
 	//	Attribute : rampRate
@@ -276,6 +294,8 @@ void EnsembleExpertClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	ramp_rate_prop;
 	ramp_rate_prop.set_description("get/sets ramp rate for the axis");
 	ramp_rate->set_default_properties(ramp_rate_prop);
+	ramp_rate->set_memorized();
+	ramp_rate->set_memorized_init(true);
 	att_list.push_back(ramp_rate);
 
 	//	Attribute : homeVelocity
@@ -283,6 +303,8 @@ void EnsembleExpertClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	home_velocity_prop;
 	home_velocity_prop.set_description("get/sets homing velocity in the controller");
 	home_velocity->set_default_properties(home_velocity_prop);
+	home_velocity->set_memorized();
+	home_velocity->set_memorized_init(true);
 	att_list.push_back(home_velocity);
 
 	//	Attribute : homeOffset
@@ -290,6 +312,8 @@ void EnsembleExpertClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	home_offset_prop;
 	home_offset_prop.set_description("get/sets homing offset in the controller");
 	home_offset->set_default_properties(home_offset_prop);
+	home_offset->set_memorized();
+	home_offset->set_memorized_init(true);
 	att_list.push_back(home_offset);
 
 	//	Attribute : statusRaw
@@ -305,6 +329,13 @@ void EnsembleExpertClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	error_raw_prop.set_label("raw error value");
 	error_raw->set_default_properties(error_raw_prop);
 	att_list.push_back(error_raw);
+
+	//	Attribute : calibrationActive
+	calibrationActiveAttrib	*calibration_active = new calibrationActiveAttrib();
+	Tango::UserDefaultAttrProp	calibration_active_prop;
+	calibration_active_prop.set_description("calibrationActive: flag saying if calibration is active: ie: correction table is currently being applied");
+	calibration_active->set_default_properties(calibration_active_prop);
+	att_list.push_back(calibration_active);
 
 	//	End of Automatic code generation
 	//-------------------------------------------------------------

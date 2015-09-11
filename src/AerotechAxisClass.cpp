@@ -498,6 +498,8 @@ void AerotechAxisClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	position_prop.set_label("Position");
 	position_prop.set_description("motor position in user units\nread position = HW (position * ratio) + offset\nwrite position = (setpoint - offset)  / ratio");
 	position->set_default_properties(position_prop);
+	position->set_memorized();
+	position->set_memorized_init(false);
 	att_list.push_back(position);
 
 	//	Attribute : offset
@@ -516,18 +518,26 @@ void AerotechAxisClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	velocity_prop.set_label("Velocity");
 	velocity_prop.set_description("motor velocity ");
 	velocity->set_default_properties(velocity_prop);
+	velocity->set_memorized();
+	velocity->set_memorized_init(true);
 	att_list.push_back(velocity);
 
 	//	Attribute : isBrakeOn
 	isBrakeOnAttrib	*is_brake_on = new isBrakeOnAttrib();
+	Tango::UserDefaultAttrProp	is_brake_on_prop;
+	is_brake_on_prop.set_description("flag saying if brake is on");
+	is_brake_on->set_default_properties(is_brake_on_prop);
 	att_list.push_back(is_brake_on);
 
 	//	Attribute : relativeMove
 	relativeMoveAttrib	*relative_move = new relativeMoveAttrib();
 	Tango::UserDefaultAttrProp	relative_move_prop;
 	relative_move_prop.set_label("relative move");
+	relative_move_prop.set_description("do a relative movement");
 	relative_move->set_default_properties(relative_move_prop);
 	relative_move->set_disp_level(Tango::EXPERT);
+	relative_move->set_memorized();
+	relative_move->set_memorized_init(false);
 	att_list.push_back(relative_move);
 
 	//	End of Automatic code generation

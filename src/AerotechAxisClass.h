@@ -80,7 +80,7 @@ public:
 class velocityAttrib: public Tango::Attr
 {
 public:
-	velocityAttrib():Attr("velocity", Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	velocityAttrib():Attr("velocity", Tango::DEV_DOUBLE, Tango::WRITE) {};
 	~velocityAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)

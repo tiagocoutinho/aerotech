@@ -77,8 +77,8 @@ public :
  */
 //@{
 		Tango::DevDouble	*attr_positionError_read;
-		Tango::DevDouble	*attr_currentVelocity_read;
-		Tango::DevDouble	attr_currentVelocity_write;
+		Tango::DevDouble	*attr_velocityFeedback_read;
+		Tango::DevDouble	*attr_velocityCommand_read;
 		Tango::DevDouble	*attr_lowLimit_read;
 		Tango::DevDouble	attr_lowLimit_write;
 		Tango::DevDouble	*attr_highLimit_read;
@@ -91,6 +91,7 @@ public :
 		Tango::DevDouble	attr_homeOffset_write;
 		Tango::DevLong	*attr_statusRaw_read;
 		Tango::DevLong	*attr_errorRaw_read;
+		Tango::DevBoolean	*attr_calibrationActive_read;
 //@}
 
 /**
@@ -186,13 +187,13 @@ public :
  */
 	virtual void read_positionError(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for currentVelocity acquisition result.
+ *	Extract real attribute values for velocityFeedback acquisition result.
  */
-	virtual void read_currentVelocity(Tango::Attribute &attr);
+	virtual void read_velocityFeedback(Tango::Attribute &attr);
 /**
- *	Write currentVelocity attribute values to hardware.
+ *	Extract real attribute values for velocityCommand acquisition result.
  */
-	virtual void write_currentVelocity(Tango::WAttribute &attr);
+	virtual void read_velocityCommand(Tango::Attribute &attr);
 /**
  *	Extract real attribute values for lowLimit acquisition result.
  */
@@ -242,13 +243,21 @@ public :
  */
 	virtual void read_errorRaw(Tango::Attribute &attr);
 /**
+ *	Extract real attribute values for calibrationActive acquisition result.
+ */
+	virtual void read_calibrationActive(Tango::Attribute &attr);
+/**
  *	Read/Write allowed for positionError attribute.
  */
 	virtual bool is_positionError_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for currentVelocity attribute.
+ *	Read/Write allowed for velocityFeedback attribute.
  */
-	virtual bool is_currentVelocity_allowed(Tango::AttReqType type);
+	virtual bool is_velocityFeedback_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for velocityCommand attribute.
+ */
+	virtual bool is_velocityCommand_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for lowLimit attribute.
  */
@@ -278,6 +287,10 @@ public :
  */
 	virtual bool is_errorRaw_allowed(Tango::AttReqType type);
 /**
+ *	Read/Write allowed for calibrationActive attribute.
+ */
+	virtual bool is_calibrationActive_allowed(Tango::AttReqType type);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -304,16 +317,16 @@ public :
 protected :	
 	//	Add your own data members here
 	//-----------------------------------------
-  //- init utilities
+	//- init utilities
 	bool m_init_device_done;
 	bool m_properties_missing;
 
-  //- the device status string
+	//- the device status string
 	std::string m_status_str;
 
-  //- check wether or not the device is properly init
-  bool is_init ();
-  Aerotech_ns::cEnsemble * axis;
+	//- check wether or not the device is properly init
+	bool is_init ();
+	Aerotech_ns::cEnsemble * axis;
 };
 
 }	// namespace_ns

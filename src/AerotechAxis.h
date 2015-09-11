@@ -64,6 +64,13 @@ namespace AerotechAxis_ns
 
 /*
  *	Device States Description:
+*  Tango::FAULT :    Init failed or
+ *                    connection with controller failed or
+ *                    emergency stopped
+*  Tango::OFF :      Dirver is DISABLED
+*  Tango::STANDBY :  Axis is On (ENABLED) and waiting for request
+*  Tango::MOVING :   Axis is Moving
+*  Tango::ALARM :    Axis is NOT homed or NOT in position
  */
 
 
@@ -85,7 +92,6 @@ public :
 		Tango::DevDouble	attr_position_write;
 		Tango::DevDouble	*attr_offset_read;
 		Tango::DevDouble	attr_offset_write;
-		Tango::DevDouble	*attr_velocity_read;
 		Tango::DevDouble	attr_velocity_write;
 		Tango::DevBoolean	*attr_isBrakeOn_read;
 		Tango::DevDouble	attr_relativeMove_write;
@@ -347,18 +353,18 @@ protected :
 	//	Add your own data members here
 	//-----------------------------------------
 
-  Aerotech_ns::AbstractAerotech * axis;
+	Aerotech_ns::AbstractAerotech * axis;
 
-  //- init utilities
+	//- init utilities
 	bool m_init_device_done;
 	bool m_properties_missing;
 
-  //- the device status string
+	//- the device status string
 	std::string m_status_str;
 
-  //- check wether or not the device is properly init
-  bool is_init ();
-  char * axis_name;
+	//- check wether or not the device is properly init
+	bool is_init ();
+	char * axis_name;
 
 };
 
